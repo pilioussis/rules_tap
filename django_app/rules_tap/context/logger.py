@@ -10,6 +10,8 @@ LOG_DIR = BASE_DIR / 'log'
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 CODE_LOG_FILE = LOG_DIR / 'code.log'
 SQL_LOG_FILE = LOG_DIR / 'sql.log'
+CONTEXT_FILE = LOG_DIR / 'context.txt'
+
 
 # Configure the logger
 logger = logging.getLogger('rules_tap.code')
@@ -18,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 file_handler = logging.FileHandler(CODE_LOG_FILE)
 file_handler.setLevel(logging.DEBUG)
 
-LOGGER_FORMAT = '%(asctime)s: %(message)s'
+LOGGER_FORMAT = '%(asctime)s| %(message)s'
 
 formatter = logging.Formatter(LOGGER_FORMAT)
 file_handler.setFormatter(formatter)

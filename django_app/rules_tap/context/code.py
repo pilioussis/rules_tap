@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from collections import defaultdict, OrderedDict
 from .logger import logger
+
 @dataclass
 class FunctionCall:
     """Represents a single function call with its metadata."""
@@ -37,35 +38,22 @@ class FunctionTracker:
             return self._trace_calls
 
         module_name = module.__name__
-
-        # Try to get the function's docstring
-        function_obj = None
-        # try:
-        function_obj = getattr(module, func_name, None)
-        # except Exception as e:
-            # print(e)
-            # pass
-
-
-        docstring = inspect.getdoc(function_obj) if function_obj else None
         
-        # Create unique key for the function
-        key = f"{module_name}.{func_name}"
-
         # TODO: Fix this up
         module_path = os.path.dirname(getattr(module, '__file__', '')) or 'site-packages'
         if not settings.BASE_DIR.as_posix() in module_path:
             return self._trace_calls
         
-        print(func_name, dir(frame), event, arg)
+        code = frame.f_code
+        docstring  = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else "-"
+        key = f"{module_name}.{code.co_qualname}"
 
-        
         if key in self.calls:
             self.calls[key].call_count += 1
         else:
-            logger.info(f"{key}|{func_name}|{docstring}")
+            logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
             self.calls[key] = FunctionCall(
-                name=func_name,
+                name=code.co_qualname,
                 docstring=docstring,
                 module=module_name
             )

@@ -1,23 +1,23 @@
 import os
+import logging.config
 from django.conf import settings
 from django.test.runner import DiscoverRunner
-import logging.config
-from org.models import OrgQuerySet, Org
+from django.db import connection
 from .code import track_functions
 from .logger import LOG_DIR, reset_logs, LOGGER_FORMAT
-
+from .transform import transform_logs
 INJECT_CONFIG = {
 	'formatters': {
         'rules_tap_format': {
             'format': LOGGER_FORMAT,
         },
     },
-	'loggers': {
-		'django.db.backends': {
-			'level': 'DEBUG',
-			'handlers': ['rules_tap_file'],
-		}
-	},
+'loggers': {
+	'django.db.backends': {
+		'level': 'DEBUG',
+		'handlers': ['rules_tap_file'],
+	}
+},
 	'handlers': {
 		'rules_tap_file': {
 			'level': 'DEBUG',
@@ -27,13 +27,9 @@ INJECT_CONFIG = {
 		}
 	},
 }
-	
-	
 
 def get_context():
-	# import inspect
-	# print(OrgQuerySet.viewable)
-	# print(Org.objects.viewable)
+	connection.force_debug_cursor = True
 	reset_logs()
 	logging.config.dictConfig({
 		**settings.LOGGING,
@@ -55,6 +51,9 @@ def get_context():
 
 	with track_functions() as tracker:
 		test_runner.run_tests(tests_to_run)
-		for k, v in tracker.get_results().items():
-			print(f"{k}: {v}")
+	
+	transform_logs()
+
+	
+
 	
