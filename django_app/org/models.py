@@ -12,7 +12,7 @@ class UserQuerySet(models.QuerySet):
 
 class User(models.Model):
     objects = UserQuerySet.as_manager()
-
+    RoleType = RoleType
     full_name = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     deactivated = models.DateTimeField(null=True, blank=True)
@@ -71,7 +71,7 @@ class WorkerQuerySet(models.QuerySet):
             viewable_types.append(WorkerType.UNDERCOVER_AGENT)
 
         return self.filter(
-             org__type__in=Org.objects.viewable(user),
+             org__in=Org.objects.viewable(user),
              type__in=viewable_types,
         )
     

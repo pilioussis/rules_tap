@@ -1,7 +1,16 @@
 from django.test import TestCase
 from org.models import User, Org, Worker
 
-class OrgTests(TestCase):
+class TestTap(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+
+class OrgTests(TestTap):
     def setUp(self):
         # Create an org with each type
         Org.objects.create(name="Active Org", type=Org.OrgType.ACTIVE)

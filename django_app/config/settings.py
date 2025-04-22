@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'org.apps.OrgConfig',
+    'rules_tap',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,13 @@ DATABASES = {
         'PASSWORD': password,
         'HOST': host,
         'PORT': port,
+        'TEST': {
+            'NAME':f"{name}_test",
+            'USER': user,
+            'PASSWORD': password,
+            'HOST': host,
+            'PORT': port,
+        },
     }
 }
 
