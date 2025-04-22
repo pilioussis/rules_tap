@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_PROJECT_ENVIRONMENT=system
-
+COPY ./misc/.bashrc /root/.bashrc
 
 WORKDIR /app
 COPY . .

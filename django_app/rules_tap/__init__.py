@@ -1,1 +1,1 @@
-default_app_config = 'plugin.apps.MyPluginConfig'
+default_app_config = 'rules_tap.apps.RulesTapConfig'

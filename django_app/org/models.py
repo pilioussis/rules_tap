@@ -33,6 +33,7 @@ class OrgQuerySet(models.QuerySet):
         return self.filter(type__in=[OrgType.ACTIVE, OrgType.PENDING])
 
     def viewable(self, user, **kwargs):
+        """Hello"""
         types = []
         if user.role == User.RoleType.PUBLIC:
             types = [OrgType.ACTIVE]
@@ -63,6 +64,9 @@ class WorkerType(models.TextChoices):
 
 class WorkerQuerySet(models.QuerySet):
     def viewable(self, user, **kwargs):
+        """
+        Returns a queryset of workers that are viewable by the user. Only Admins can view undercover agents.
+        """
         viewable_types = [
             WorkerType.EMPLOYEE,
             WorkerType.CONTRACTOR,

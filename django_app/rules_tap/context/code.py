@@ -1,10 +1,12 @@
 import inspect
 import sys
+import os
+from django.conf import settings
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from collections import defaultdict, OrderedDict
-
+from .logger import logger
 @dataclass
 class FunctionCall:
     """Represents a single function call with its metadata."""
@@ -44,14 +46,24 @@ class FunctionTracker:
             # print(e)
             # pass
 
+
         docstring = inspect.getdoc(function_obj) if function_obj else None
         
         # Create unique key for the function
         key = f"{module_name}.{func_name}"
+
+        # TODO: Fix this up
+        module_path = os.path.dirname(getattr(module, '__file__', '')) or 'site-packages'
+        if not settings.BASE_DIR.as_posix() in module_path:
+            return self._trace_calls
+        
+        print(func_name, dir(frame), event, arg)
+
         
         if key in self.calls:
             self.calls[key].call_count += 1
         else:
+            logger.info(f"{key}|{func_name}|{docstring}")
             self.calls[key] = FunctionCall(
                 name=func_name,
                 docstring=docstring,
@@ -105,7 +117,3 @@ def another_function():
     """Another function with a docstring."""
     example_function()
 
-with track_functions() as t:
-    another_function()
-    for k, v in t.get_results().items():
-        print(k, v)
