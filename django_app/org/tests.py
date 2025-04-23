@@ -1,16 +1,6 @@
-from django.test import TestCase
 from org.models import User, Org, Worker
-
-class TestTap(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-
-class OrgTests(TestTap):
+from rules_tap.context.test_case_logger import TapTestCase
+class OrgTests(TapTestCase):
     def setUp(self):
         # Create an org with each type
         Org.objects.create(name="Active Org", type=Org.OrgType.ACTIVE)
@@ -33,7 +23,7 @@ class OrgTests(TestTap):
         self.assertEqual(Org.objects.viewable(pub_user).count(), 1)
 
 
-class WorkerTests(TestCase):
+class WorkerTests(TapTestCase):
     def setUp(self):
         # Create an org with each type
         self.inactive_org = Org.objects.create(name="Inactive Org", type=Org.OrgType.INACTIVE)

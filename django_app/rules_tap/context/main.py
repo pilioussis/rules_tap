@@ -47,9 +47,13 @@ def get_context():
 		},
 	})
 	test_runner = DiscoverRunner(verbosity=2)
-	tests_to_run = ['org.tests.OrgTests']
+	tests_to_run = [
+		'org.tests.OrgTests',
+		'org.tests.WorkerTests',
+	]
 
 	with track_functions() as tracker:
+		test_runner.keepdb = True
 		test_runner.run_tests(tests_to_run)
 	
 	transform_logs()

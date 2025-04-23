@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from collections import defaultdict, OrderedDict
 from .logger import logger
 
+
 @dataclass
 class FunctionCall:
     """Represents a single function call with its metadata."""
@@ -82,13 +83,6 @@ def track_functions():
         with track_functions() as tracker:
             # Your code here
             some_function()
-            
-        results = tracker.get_results()
-        for key, call in results.items():
-            print(f"Function: {call.name}")
-            print(f"Module: {call.module}")
-            print(f"Docstring: {call.docstring}")
-            print(f"Called {call.call_count} times")
     """
     tracker = FunctionTracker()
     tracker.start_tracking()

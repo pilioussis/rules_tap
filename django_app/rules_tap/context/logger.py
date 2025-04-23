@@ -5,9 +5,9 @@ import shutil
 from pathlib import Path
 
 # Determine the base directory (django_app/rules_tap)
-BASE_DIR = Path(__file__).resolve().parents[1]
-LOG_DIR = BASE_DIR / 'log'
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR = Path(__file__).resolve().parents[1] / 'out'
+LOG_DIR = OUTPUT_DIR / 'log'
+QUERY_DIR = OUTPUT_DIR / 'query'
 CODE_LOG_FILE = LOG_DIR / 'code.log'
 SQL_LOG_FILE = LOG_DIR / 'sql.log'
 CONTEXT_FILE = LOG_DIR / 'context.txt'
@@ -29,13 +29,16 @@ file_handler.setFormatter(formatter)
 if not logger.handlers:
 	logger.addHandler(file_handler) 
 
-
-def reset_logs():
-	if not LOG_DIR.exists():
-		LOG_DIR.mkdir(parents=True, exist_ok=True)
+def clear_dir(dir: Path):
+	if not dir.exists():
+		dir.mkdir(parents=True, exist_ok=True)
 	else:
-		files = glob.glob(str(LOG_DIR / '*'))
+		files = glob.glob(str(dir / '*'))
 		for f in files:
 			os.remove(f)
+
+def reset_logs():
+	clear_dir(LOG_DIR)
+	clear_dir(QUERY_DIR)
 	CODE_LOG_FILE.touch(exist_ok=True)
 	SQL_LOG_FILE.touch(exist_ok=True) 
