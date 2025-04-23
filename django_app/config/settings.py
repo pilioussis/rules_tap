@@ -67,7 +67,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Parse database connection URL
-database_url = os.environ.get('DATABASE_URL', 'postgres://postgres:postgres@db:5432/postgres')
+database_url = os.environ.get('DATABASE_URL')
 parts = database_url.split('://', 1)[1].split('@')
 user_pass, host_port_name = parts[0], parts[1]
 user, password = user_pass.split(':')
@@ -173,7 +173,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -184,3 +183,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' 
+
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')

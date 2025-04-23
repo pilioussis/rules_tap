@@ -4,17 +4,18 @@ services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    working_dir: /app
+    working_dir: /app/django_app
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
+    env_file:
+      - ~/.pharos/aws_dev_bucket_user.env
     environment:
-      - DEBUG=True
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
-      - SECRET_KEY=dev_secret_key
+      
 
   db:
     image: postgres:17
