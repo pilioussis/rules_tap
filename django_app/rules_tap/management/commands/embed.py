@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand
 
 from rules_tap.embeddings.save_to_store import save_to_store
