@@ -1,20 +1,13 @@
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+package = false
 
 [project]
-name = "django_project"
-version = "0.1.0"
-description = "Django project with PostgreSQL and DevContainers"
-readme = "README.md"
+name="rules_tap"
+version="0.0.1"
 requires-python = ">=3.13"
-authors = [
-    {name = "Your Name", email = "your.email@example.com"}
-]
 dependencies = [
-    "django>=5.2.0",
+    "django==5.2.0",
     "gunicorn==23.0.0",
+    "inflection==0.5.1",
+    "openai==1.75.0",
     "psycopg2-binary==2.9.10",
 ]
-
-[tool.uv]

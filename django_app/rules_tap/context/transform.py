@@ -1,5 +1,7 @@
 import os
 import re
+import inflection
+
 from .logger import CODE_LOG_FILE, SQL_LOG_FILE, QUERY_DIR
 from .test_case_logger import get_start_token, get_end_token
 from contextlib import ExitStack
@@ -56,11 +58,22 @@ class QueryFileManager():
         elif line_type == self.LineType.END:
             self.close_query_file()
         elif self.query_file:
-            self.query_file.write(line + '\n')
+            to_write = line[25:]
+            if to_write:
+                func_name, doc_string = to_write.split('|', 1)
+                func_name = ': '.join(func_name.split('.')[-2:])
+                self.query_file.write(inflection.humanize(inflection.underscore(func_name)) + '\n')
+                if doc_string:
+                    self.query_file.write(doc_string + '\n')
+                
 
     def handle_sql_log_line(self, line: str):
         if self.query_file:
-            self.query_file.write(line + '\n')
+            if any(k in line for k in ['SELECT', 'INSERT', 'UPDATE', 'DELETE']):
+                to_write = line.split(';', 1)[0]
+                to_write = to_write[33:]
+                self.query_file.write(to_write + '\n')
+
 
 def transform_logs():
     query_file_manager = QueryFileManager()

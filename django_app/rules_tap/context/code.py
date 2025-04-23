@@ -46,7 +46,7 @@ class FunctionTracker:
             return self._trace_calls
         
         code = frame.f_code
-        docstring  = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else "-"
+        docstring  = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else ""
         key = f"{module_name}.{code.co_qualname}"
 
         if key in self.calls:
