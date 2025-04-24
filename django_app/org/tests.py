@@ -1,6 +1,7 @@
 from org.models import User, Org, Worker
-from rules_tap.context.test_case_logger import TapTestCase
-class OrgTests(TapTestCase):
+from rules_tap.context.runtime_extraction.chunk_time_tracker import TrackedTestCase
+from . import api
+class OrgTests(TrackedTestCase):
     def setUp(self):
         # Create an org with each type
         Org.objects.create(name="Active Org", type=Org.OrgType.ACTIVE)
@@ -23,7 +24,7 @@ class OrgTests(TapTestCase):
         self.assertEqual(Org.objects.viewable(pub_user).count(), 1)
 
 
-class WorkerTests(TapTestCase):
+class WorkerTests(TrackedTestCase):
     def setUp(self):
         # Create an org with each type
         self.inactive_org = Org.objects.create(name="Inactive Org", type=Org.OrgType.INACTIVE)
@@ -44,3 +45,26 @@ class WorkerTests(TapTestCase):
         
         self.assertEqual(viewable_workers.count(), 2)
 
+
+
+class SearchTests(TrackedTestCase):
+    def test_pub_user_search(self):
+        """
+        Test the fuzzy name search works with permission filters.
+        Admin workers should be able to see workers in both orgs, the public users should only be able to see the active org workers.
+        """
+        inactive_org = Org.objects.create(name="Inactive Org", type=Org.OrgType.INACTIVE)
+        active_org = Org.objects.create(name="Active Org", type=Org.OrgType.ACTIVE)
+
+        for org in [inactive_org, active_org]:
+            Worker.objects.create(org=org, name="ADAM", type=Worker.WorkerType.EMPLOYEE)
+            Worker.objects.create(org=org, name="amber", type=Worker.WorkerType.UNDERCOVER_AGENT)
+
+        pub_user = User.objects.create(role=User.RoleType.PUBLIC)
+        admin_user = User.objects.create(role=User.RoleType.ADMIN)
+
+        results = api.get_workers_search_results(pub_user, {'name': "am"})
+        self.assertEqual(results.count(), 2)
+
+        results = api.get_workers_search_results(admin_user, {'name': "am"})
+        self.assertEqual(results.count(), 4)

@@ -7,7 +7,15 @@ class RoleType(models.TextChoices):
 
 class UserQuerySet(models.QuerySet):
     def viewable(self, user, **kwargs):
-        return self.filter(id=user.id, deactivated__isnull=True)
+        """Only admins should be able to see all users. Other users can only see themselves."""
+        return self.filter(
+            id__in=models.Case(
+                models.When(role=User.RoleType.ADMIN, then=models.Subquery(User.objects.filter(deactivated__isnull=True).values('id'))),
+                default=models.Value(user.id),
+                output_field=models.IntegerField()
+            ),
+            deactivated__isnull=True
+        )
 
 
 class User(models.Model):
@@ -30,10 +38,16 @@ class OrgType(models.TextChoices):
 
 class OrgQuerySet(models.QuerySet):
     def viewable_in_search(self):
+        """The set of organisations that a user can view in the public search page"""
         return self.filter(type__in=[OrgType.ACTIVE, OrgType.PENDING])
 
     def viewable(self, user, **kwargs):
-        """Hello"""
+        """
+        The set of organisations that a user can view:
+            Public users - Only view active organisations.
+            Authenticated users - View active and pending organisations.
+            Admins - View all organisations.
+        """
         types = []
         if user.role == User.RoleType.PUBLIC:
             types = [OrgType.ACTIVE]
@@ -64,9 +78,7 @@ class WorkerType(models.TextChoices):
 
 class WorkerQuerySet(models.QuerySet):
     def viewable(self, user, **kwargs):
-        """
-        Returns a queryset of workers that are viewable by the user. Only Admins can view undercover agents.
-        """
+        """ Returns a queryset of workers that are viewable by the user. Only Admins can view undercover agents."""
         viewable_types = [
             WorkerType.EMPLOYEE,
             WorkerType.CONTRACTOR,
@@ -80,11 +92,12 @@ class WorkerQuerySet(models.QuerySet):
         )
     
     def viewable_in_user_search(self, user):
-         viewable_in_search = Org.objects.viewable_in_search()
-         viewable_to_user = Org.objects.viewable(user)
-         viewable_org_union = viewable_in_search | viewable_to_user
+        """ The set of workers that a user can view in the search page. They must be able to view the org and the worker."""
+        orgs_viewable_in_search = Org.objects.viewable_in_search()
+        orgs_viewable_to_user = Org.objects.viewable(user)
+        orgs_viewable_org_intersection = orgs_viewable_in_search & orgs_viewable_to_user
 
-         return self.viewable(user).filter(org__in=viewable_org_union)
+        return self.viewable(user).filter(org__in=orgs_viewable_org_intersection)
 
 class Worker(models.Model):
     objects = WorkerQuerySet.as_manager()
@@ -98,3 +111,6 @@ class Worker(models.Model):
         choices=WorkerType.choices,
         default=WorkerType.EMPLOYEE,
     )
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+

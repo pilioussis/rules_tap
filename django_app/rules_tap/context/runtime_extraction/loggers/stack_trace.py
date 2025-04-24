@@ -1,12 +1,16 @@
+import logging
+import inflection
+import os
+from pathlib import Path
 import inspect
 import sys
 import os
 from django.conf import settings
 from contextlib import contextmanager
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
-from collections import defaultdict, OrderedDict
-from .logger import logger
+from collections import OrderedDict
+from ..common import LOGGER_FORMAT
 
 
 @dataclass
@@ -17,11 +21,13 @@ class FunctionCall:
     module: str
     call_count: int = 1
 
+
 class FunctionTracker:
     """A class to track and store function call information."""
-    def __init__(self):
+    def __init__(self, logger):
         self.calls: Dict[str, FunctionCall] = OrderedDict()
         self._original_trace = None
+        self.logger = logger
 
     def _trace_calls(self, frame: Any, event: str, arg: Any) -> Any:
         """Internal method to trace function calls."""
@@ -52,7 +58,7 @@ class FunctionTracker:
         if key in self.calls:
             self.calls[key].call_count += 1
         else:
-            logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
+            self.logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
             self.calls[key] = FunctionCall(
                 name=code.co_qualname,
                 docstring=docstring,
@@ -75,7 +81,7 @@ class FunctionTracker:
         return dict(self.calls)
 
 @contextmanager
-def track_functions():
+def log_stack_trace_info_to_file(logfile: Path):
     """
     A context manager that tracks all function calls and their docstrings within its scope.
     
@@ -84,18 +90,26 @@ def track_functions():
             # Your code here
             some_function()
     """
-    tracker = FunctionTracker()
+
+    logger = logging.getLogger('rules_tap.context.runtime_extraction.stack_trace')
+    logger.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler(logfile)
+    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(LOGGER_FORMAT)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    tracker = FunctionTracker(logger)
     tracker.start_tracking()
     try:
         yield tracker
     finally:
         tracker.stop_tracking()
 
-def example_function():
-    """This is an example function."""
-    pass
-
-def another_function():
-    """Another function with a docstring."""
-    example_function()
-
+def stack_trace_line_processor(line: str):
+    func_name, doc_string = line.split('|', 1)
+    func_name = ': '.join(func_name.split('.')[-2:])
+    out = inflection.humanize(inflection.underscore(func_name))
+    if doc_string:
+        out += f'\n{doc_string.strip()}'
+    return out
