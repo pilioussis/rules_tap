@@ -1,30 +1,31 @@
 import shutil
 from contextlib import ExitStack
-from django.test.runner import DiscoverRunner
-from .loggers import LOGGERS
-from .chunk_time_tracker import chunk_time_tracker
+from .chunk_from_test_case import chunk_time_tracker, run_tests
 from .common import RUNTIME_DIR
-from .create_chunks import create_chunks
+from .logs_to_chunks import create_chunks
+from .config import get_loggers
 
-
-def runtime_extraction():
-	test_runner = DiscoverRunner(verbosity=2)
-	tests_to_run = [
-		'org.tests',
-	]
-
+def clear_workdir():
 	if RUNTIME_DIR.exists():
 		shutil.rmtree(RUNTIME_DIR)
 	RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
 
+def runtime_extraction(config):
+	clear_workdir()
+
+	runtime_loggers = get_loggers(config=config)
+
 	with ExitStack() as stack:
+		# Start listening for start/stop signals
 		time_chunks = stack.enter_context(chunk_time_tracker())
-		for logger in LOGGERS:
-			stack.enter_context(logger.context_manager(logger.logfile))
 
-		test_runner.keepdb = True
-		test_runner.run_tests(tests_to_run)
+		for logger in runtime_loggers:
+			stack.enter_context(logger.context_manager(logger.logfile, **logger.logger_args))
 
-	create_chunks(time_chunks)
+		# Run code to start capturing logs
+		run_tests()
+
+	# Pluck useful sections in the logs to embeddable chunks
+	create_chunks(runtime_loggers, time_chunks)
 
 	

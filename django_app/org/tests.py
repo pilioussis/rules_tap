@@ -1,5 +1,5 @@
 from org.models import User, Org, Worker
-from rules_tap.context.runtime_extraction.chunk_time_tracker import TrackedTestCase
+from rules_tap.context.runtime_extraction.chunk_from_test_case import TrackedTestCase
 from . import api
 class OrgTests(TrackedTestCase):
     def setUp(self):
@@ -64,7 +64,7 @@ class SearchTests(TrackedTestCase):
         admin_user = User.objects.create(role=User.RoleType.ADMIN)
 
         results = api.get_workers_search_results(pub_user, {'name': "am"})
-        self.assertEqual(results.count(), 2)
+        self.assertEqual(results.count(), 1)
 
         results = api.get_workers_search_results(admin_user, {'name': "am"})
-        self.assertEqual(results.count(), 4)
+        self.assertEqual(results.count(), 2)

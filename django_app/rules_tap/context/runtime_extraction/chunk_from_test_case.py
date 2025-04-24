@@ -1,5 +1,6 @@
 from datetime import datetime
 from contextlib import contextmanager
+from django.test.runner import DiscoverRunner
 from django.test import TestCase
 
 chunk_times = None
@@ -17,6 +18,7 @@ def chunk_time_tracker():
         yield chunk_times
     finally:
         pass
+
 
 def save_track_action(action: TrackAction):
     global chunk_times
@@ -36,3 +38,9 @@ class TrackedTestCase(TestCase):
     def tearDownClass(cls):
         save_track_action(TrackAction.STOP)
         super().tearDownClass()
+
+def run_tests():
+    test_runner = DiscoverRunner(verbosity=2)
+    all_tests = ['.']
+    test_runner.keepdb = True
+    test_runner.run_tests(all_tests)

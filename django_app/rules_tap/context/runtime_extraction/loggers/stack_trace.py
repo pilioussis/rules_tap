@@ -24,10 +24,11 @@ class FunctionCall:
 
 class FunctionTracker:
     """A class to track and store function call information."""
-    def __init__(self, logger):
+    def __init__(self, *, logger, module_names):
         self.calls: Dict[str, FunctionCall] = OrderedDict()
         self._original_trace = None
         self.logger = logger
+        self.module_names = module_names
 
     def _trace_calls(self, frame: Any, event: str, arg: Any) -> Any:
         """Internal method to trace function calls."""
@@ -46,9 +47,9 @@ class FunctionTracker:
 
         module_name = module.__name__
         
-        # TODO: Fix this up
-        module_path = os.path.dirname(getattr(module, '__file__', '')) or 'site-packages'
-        if not settings.BASE_DIR.as_posix() in module_path:
+        module_path = os.path.dirname(getattr(module, '__file__', '')) or ''
+        if not any(module_path.startswith(module_name) for module_name in self.module_names):
+            # This function is in a module that will not have useful info, so ignore
             return self._trace_calls
         
         code = frame.f_code
@@ -81,7 +82,7 @@ class FunctionTracker:
         return dict(self.calls)
 
 @contextmanager
-def log_stack_trace_info_to_file(logfile: Path):
+def log_stack_trace_info_to_file(logfile: Path, module_names: list[str]):
     """
     A context manager that tracks all function calls and their docstrings within its scope.
     
@@ -99,7 +100,7 @@ def log_stack_trace_info_to_file(logfile: Path):
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    tracker = FunctionTracker(logger)
+    tracker = FunctionTracker(logger=logger, module_names=module_names)
     tracker.start_tracking()
     try:
         yield tracker
