@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'org.apps.OrgConfig',
     'rules_tap',
+    # 'rules_tap',
 ]
 
 MIDDLEWARE = [

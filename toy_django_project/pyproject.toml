@@ -1,7 +1,7 @@
-package = false
+# package = false
 
 [project]
-name="rules_tap"
+name="toy_django_project"
 version="0.0.1"
 requires-python = ">=3.13"
 dependencies = [

@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    working_dir: /app/django_app
+    working_dir: /app/toy_django_project
     volumes:
       - .:/app
     ports:
