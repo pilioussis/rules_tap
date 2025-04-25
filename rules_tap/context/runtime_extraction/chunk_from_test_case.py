@@ -41,6 +41,6 @@ class TrackedTestCase(TestCase):
 
 def run_tests():
     test_runner = DiscoverRunner(verbosity=2)
-    all_tests = ['.']
+    all_tests = ['org.tests']
     test_runner.keepdb = True
     test_runner.run_tests(all_tests)
