@@ -3,16 +3,13 @@ import numpy as np
 import json
 from openai import OpenAI
 from django.conf import settings
-from rules_tap.common import OUT_DIR
+from rules_tap.common import Config
 
-INDEX_PATH = OUT_DIR / 'hnsw_index.faiss'
-MAPPING_PATH = OUT_DIR / 'id_to_text.json'
 
-client = OpenAI(
-    api_key=settings.OPENAI_API_KEY,
-)
-
-def get_embedding(text):
+def get_embedding(config: Config, text: str):
+    client = OpenAI(
+        api_key=config.open_api_key,
+    )
     response = client.embeddings.create(
         input=text,
         model="text-embedding-3-small"
@@ -23,26 +20,28 @@ def get_embedding(text):
     return embedding
 
 
-
-def save_db(idx, mapping):
-    faiss.write_index(idx, str(INDEX_PATH))
-    with open(MAPPING_PATH, 'w', encoding='utf-8') as f:
+def save_db(config: Config, idx, mapping):
+    faiss.write_index(idx, str(config.vector_index_file))
+    with open(config.id_to_text_file, 'w', encoding='utf-8') as f:
         json.dump(mapping, f)
 
+def init_db():
+    base_index = faiss.IndexHNSWFlat(1536, 32)
+    idx        = faiss.IndexIDMap(base_index)
+    return idx, {}
 
-def load_db():
-    if INDEX_PATH.exists():
-        idx = faiss.read_index(str(INDEX_PATH))
-        # TODO: I don't think this is necessary???
-        if not isinstance(idx, faiss.IndexIDMap):
-            idx = faiss.IndexIDMap(idx)
-    else:
-        base_index = faiss.IndexHNSWFlat(1536, 32)
-        idx        = faiss.IndexIDMap(base_index)
+def load_db(config: Config):
+    if not config.vector_index_file.exists():
+        raise Exception(f"Vector index file {config.vector_index_file} does not exist")
 
-    if MAPPING_PATH.exists():
-        with open(MAPPING_PATH, 'r', encoding='utf-8') as f:
-            mapping = json.load(f)
-    else:
-        mapping = {}
+    if not config.id_to_text_file.exists():
+        raise Exception(f"ID to text file {config.id_to_text_file} does not exist")
+    
+    idx = faiss.read_index(str(config.vector_index_file))
+    # TODO: I don't think this is necessary???
+    if not isinstance(idx, faiss.IndexIDMap):
+        idx = faiss.IndexIDMap(idx)
+    
+    with open(config.id_to_text_file, 'r', encoding='utf-8') as f:
+        mapping = json.load(f)
     return idx, mapping

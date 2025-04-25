@@ -9,7 +9,7 @@ def get_hash(text: str) -> int:
     hash_obj = hashlib.md5(text.encode('utf-8'))
     hash_bytes = hash_obj.digest()[:8]
     hash_id = int.from_bytes(hash_bytes, byteorder='big', signed=False)
-    return hash_id
+    return hash_id >> 1 # shift right to avoid overflow due to unsigned
 
 @dataclasses.dataclass
 class Config:
@@ -32,6 +32,14 @@ class Config:
     @property
     def stack_trace_log_file(self):
         return self.runtime_dir / 'stack_trace.log'
+    
+    @property
+    def vector_index_file(self):
+        return self.work_dir / 'vector_index.faiss'
+
+    @property
+    def id_to_text_file(self):
+        return self.work_dir / 'id_to_text.json'
     
 
 def rm_dir(dir: Path):

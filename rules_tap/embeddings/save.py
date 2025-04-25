@@ -1,22 +1,22 @@
 import os
 import numpy as np
-from .common import load_db, save_db, get_embedding
-from rules_tap.common import get_hash, CHUNK_DIR
+from .common import init_db, save_db, get_embedding
+from rules_tap.common import get_hash, Config
 
 
-def create_embeddings_and_save_to_db():
-    idx, mapping = load_db()
+def create_embeddings_and_save_to_db(config: Config):
+    idx, mapping = init_db()
 
-    for filename in os.listdir(CHUNK_DIR):
-        with open(os.path.join(CHUNK_DIR, filename), 'r', encoding='utf-8') as file:
+    for filename in os.listdir(config.chunk_dir):
+        with open(os.path.join(config.chunk_dir, filename), 'r', encoding='utf-8') as file:
             text = file.read().strip()
-            embedding = get_embedding(text)
+            embedding = get_embedding(config, text)
             hash_id = get_hash(text)
             print(hash_id)
-            idx.add_with_ids(np.array([embedding]), np.array([hash_id], dtype=np.uint64))
+            idx.add_with_ids(np.array([embedding]), np.array([hash_id], dtype=np.int64))
             mapping[str(hash_id)] = text
     
-    save_db(idx, mapping)
+    save_db(config, idx, mapping)
 
 
 
