@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'org.apps.OrgConfig',
     'rules_tap',
-    # 'rules_tap',
 ]
 
 MIDDLEWARE = [
@@ -185,5 +184,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' 
 
+print(BASE_DIR)
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+RULES_TAP_CONFIG = {
+    'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
+    'MODULE_PATH': ['org'],
+    'WORKDIR': BASE_DIR / 'out',
+}

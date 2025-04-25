@@ -1,4 +1,4 @@
 *.pyc
 *.DS_STORE
 
-out
+toy_django_project/out

@@ -3,7 +3,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from django.conf import settings
 from django.db import connection
-from rules_tap.context.runtime_extraction.common import LOGGER_FORMAT
+from rules_tap.common import LOGGER_FORMAT
 
 
 def get_net_config(prev_config: dict, logfile: Path):

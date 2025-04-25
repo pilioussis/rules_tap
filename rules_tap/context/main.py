@@ -1,15 +1,9 @@
-import shutil
 from .runtime_extraction.main import runtime_extraction
-from .runtime_extraction.config import Config
-from rules_tap.common import CHUNK_DIR
+from rules_tap.common import Config, rm_dir
 
-def get_context():
-	if CHUNK_DIR.exists():
-		shutil.rmtree(CHUNK_DIR)
-
-	CHUNK_DIR.mkdir(parents=True, exist_ok=True)
-
-	config = Config(module_names=["/app/django_app/org"])
+def get_context(config: Config):
+	rm_dir(config.chunk_dir)
+	rm_dir(config.runtime_dir)
 
 	runtime_extraction(config)
     

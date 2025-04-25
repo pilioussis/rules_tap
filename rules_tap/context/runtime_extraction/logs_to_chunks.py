@@ -1,10 +1,10 @@
 from datetime import datetime
 from colorama import Fore, Style, Back
-from rules_tap.common import get_hash, CHUNK_DIR
+from rules_tap.common import get_hash, Config
 
 from .chunk_from_test_case import TrackAction
 from contextlib import ExitStack
-from .config import RuntimeLogger
+from .loggers import RuntimeLogger
 
 
 class FileTracker:
@@ -46,7 +46,7 @@ class TrackerGroup:
         return out
 
 
-def create_chunks(runtime_loggers: list[RuntimeLogger], chunk_times: list[tuple[TrackAction, datetime]]):
+def create_chunks(config: Config, runtime_loggers: list[RuntimeLogger], chunk_times: list[tuple[TrackAction, datetime]]):
     print()
     print(f"{Back.BLUE}{Fore.WHITE} Parsing logs for test cases: {Style.RESET_ALL}")
     with ExitStack() as stack:
@@ -62,7 +62,7 @@ def create_chunks(runtime_loggers: list[RuntimeLogger], chunk_times: list[tuple[
             lines = tracker_group.read_up_to_date(time)
             text = '\n'.join(lines)
             hash_id = get_hash(text)
-            file_name = CHUNK_DIR / f'runtime_{hash_id}.txt'
+            file_name = config.chunk_dir / f'runtime_{hash_id}.txt'
 
             with open(file_name, 'w') as f:
                 f.write(text)
