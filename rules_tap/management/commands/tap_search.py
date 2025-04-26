@@ -7,4 +7,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         config = load_config(settings.RULES_TAP_CONFIG)
 
-        search_store(config, "example text")
+        # search_text = input("Enter the text to search: ")
+        search_text = "Get me the set of actions where notifications are no longer being sent"
+        search_store(config, search_text, n=5)
