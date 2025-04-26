@@ -66,7 +66,8 @@ def create_chunks(config: Config, runtime_loggers: list[RuntimeLogger], chunk_ti
                 continue
             lines = tracker_group.read_up_to_date(time)
             if not lines:
-                raise Exception(f'No lines found for time: {time}')
+                print(f"{Fore.YELLOW}No lines found for time: {time}{Style.RESET_ALL}")
+                continue
             
             # Remove duplicates
             lines = list(dict.fromkeys(lines))
