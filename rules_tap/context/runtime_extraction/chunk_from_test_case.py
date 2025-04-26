@@ -1,11 +1,13 @@
 from datetime import datetime
+from enum import Enum
+from unittest import TextTestResult
 from contextlib import contextmanager
 from django.test.runner import DiscoverRunner
 from django.test import TestCase
 
 chunk_times = None
 
-class TrackAction:
+class TrackAction(Enum):
     START = 'START'
     STOP = 'STOP'
 
@@ -27,20 +29,19 @@ def save_track_action(action: TrackAction):
     chunk_times.append((action, datetime.now()))
 
 
-class TrackedTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        save_track_action(TrackAction.START)
+def startTest(self, test):
+    super(TextTestResult, self).startTest(test)
+    save_track_action(TrackAction.START)
 
+def stopTest(self, test):
+    save_track_action(TrackAction.STOP)
+    super(TextTestResult, self).stopTest(test)
 
-    @classmethod
-    def tearDownClass(cls):
-        save_track_action(TrackAction.STOP)
-        super().tearDownClass()
+TextTestResult.startTest = startTest
+TextTestResult.stopTest = stopTest
 
 def run_tests():
     test_runner = DiscoverRunner(verbosity=2)
-    all_tests = ['org.tests']
+    all_tests = ['.']
     test_runner.keepdb = True
     test_runner.run_tests(all_tests)

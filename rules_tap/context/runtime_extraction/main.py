@@ -18,7 +18,8 @@ def runtime_extraction(config: Config):
 
 		# Run code to start capturing context
 		run_tests()
-
+	for t in time_chunks:
+		print(t)
 	# Pluck useful sections in the logs to embeddable chunks
 	create_chunks(config, runtime_loggers, time_chunks)
 

@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from colorama import Fore, Style, Back
 from rules_tap.common import get_hash, Config
@@ -14,11 +15,15 @@ class FileTracker:
         self.next_line()
     
     def next_line(self):
-        full_line = self.file.readline().strip()
+        full_line = self.file.readline()
         if not full_line:
             self.line = None
             self.time = None
-
+            return
+        full_line = full_line.strip()
+        if not full_line:
+            self.next_line()
+            return
         split_line = full_line.split('|', 1)
         if len(split_line) == 1:
             self.line = full_line
@@ -60,7 +65,13 @@ def create_chunks(config: Config, runtime_loggers: list[RuntimeLogger], chunk_ti
                 tracker_group.read_up_to_date(time)
                 continue
             lines = tracker_group.read_up_to_date(time)
-            text = '\n'.join(lines)
+            if not lines:
+                raise Exception(f'No lines found for time: {time}')
+            
+            # Remove duplicates
+            lines = list(dict.fromkeys(lines))
+            
+            text = '\n\n'.join(lines)
             hash_id = get_hash(text)
             file_name = config.chunk_dir / f'runtime_{hash_id}.txt'
 

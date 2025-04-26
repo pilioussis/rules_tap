@@ -1,7 +1,7 @@
 from org.models import User, Org, Worker
-from rules_tap.context.runtime_extraction.chunk_from_test_case import TrackedTestCase
+from django.test import TestCase
 from . import api
-class OrgTests(TrackedTestCase):
+class OrgTests(TestCase):
     def setUp(self):
         # Create an org with each type
         Org.objects.create(name="Active Org", type=Org.OrgType.ACTIVE)
@@ -24,7 +24,7 @@ class OrgTests(TrackedTestCase):
         self.assertEqual(Org.objects.viewable(pub_user).count(), 1)
 
 
-class WorkerTests(TrackedTestCase):
+class WorkerTests(TestCase):
     def setUp(self):
         # Create an org with each type
         self.inactive_org = Org.objects.create(name="Inactive Org", type=Org.OrgType.INACTIVE)
@@ -47,7 +47,7 @@ class WorkerTests(TrackedTestCase):
 
 
 
-class SearchTests(TrackedTestCase):
+class SearchTests(TestCase):
     def test_pub_user_search(self):
         """
         Test the fuzzy name search works with permission filters.

@@ -1,5 +1,6 @@
 import logging
 import inflection
+import re
 import os
 from pathlib import Path
 import inspect
@@ -25,7 +26,6 @@ class FunctionCall:
 class FunctionTracker:
     """A class to track and store function call information."""
     def __init__(self, *, logger, module_names):
-        self.calls: Dict[str, FunctionCall] = OrderedDict()
         self._original_trace = None
         self.logger = logger
         self.module_names = module_names
@@ -52,19 +52,13 @@ class FunctionTracker:
             # This function is in a module that will not have useful info, so ignore
             return self._trace_calls
         
+        if any([s in module_name for s in ['receivers', 'factories']]):
+            return self._trace_calls
+        
         code = frame.f_code
         docstring  = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else ""
-        key = f"{module_name}.{code.co_qualname}"
 
-        if key in self.calls:
-            self.calls[key].call_count += 1
-        else:
-            self.logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
-            self.calls[key] = FunctionCall(
-                name=code.co_qualname,
-                docstring=docstring,
-                module=module_name
-            )
+        self.logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
 
         return self._trace_calls
 
@@ -109,8 +103,9 @@ def log_stack_trace_info_to_file(logfile: Path, module_names: list[str]):
 
 def stack_trace_line_processor(line: str):
     func_name, doc_string = line.split('|', 1)
-    func_name = ': '.join(func_name.split('.')[-2:])
+    func_name = ' - '.join(func_name.split('.')[-2:])
     out = inflection.humanize(inflection.underscore(func_name))
     if doc_string:
+        doc_string = re.sub(r'(\S)    ', r'\1\n    ', doc_string)
         out += f'\n{doc_string.strip()}'
     return out
