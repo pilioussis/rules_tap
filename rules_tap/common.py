@@ -14,9 +14,9 @@ def get_hash(text: str) -> int:
 @dataclasses.dataclass
 class Config:
     module_names: list[str]
+    file_chunk_exclude_paths: list[str]
     open_api_key: str
     work_dir: Path
-    ignore_paths: list[str]
 
     @property
     def chunk_dir(self):
@@ -51,8 +51,8 @@ def rm_dir(dir: Path):
 
 def load_config(config: dict):
     return Config(
-        module_names=config['MODULE_PATHS'],
-        ignore_paths=config['IGNORE_PATHS'],
+        module_names=config['MODULE_PATH'],
         open_api_key=config['OPENAI_API_KEY'],
         work_dir=Path(config['WORKDIR']),
+        file_chunk_exclude_paths=config['FILE_CHUNK_EXCLUDE_PATHS'],
     )

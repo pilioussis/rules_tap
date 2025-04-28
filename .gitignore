@@ -2,3 +2,6 @@
 *.DS_STORE
 
 toy_django_project/out
+
+.bak*
+.for*

@@ -1,5 +1,5 @@
 services:
-  web:
+  toy:
     build:  
       context: ./
       dockerfile: ./toy_django_project/Dockerfile

@@ -56,7 +56,20 @@ class FunctionTracker:
             return self._trace_calls
         
         code = frame.f_code
-        docstring  = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else ""
+        # capture top docstring
+        docstring = code.co_consts[0] if code.co_consts and isinstance(code.co_consts[0], str) else ""
+        # capture comments within the function source
+        try:
+            source = inspect.getsource(frame.f_code)
+            comment_lines = re.findall(r'^\s*#(.*)', source, re.MULTILINE)
+            if comment_lines:
+                comments = '#-#'.join(line.strip() for line in comment_lines)
+                if docstring:
+                    docstring = f"{docstring}#-#{comments}"
+                else:
+                    docstring = comments
+        except (OSError, IOError):
+            pass
 
         self.logger.info(f"{module_name}.{code.co_qualname}|{docstring.replace('\n', ' ')}")
 
@@ -107,5 +120,6 @@ def stack_trace_line_processor(line: str):
     out = inflection.humanize(inflection.underscore(func_name))
     if doc_string:
         doc_string = re.sub(r'(\S)    ', r'\1\n    ', doc_string)
+        doc_string = doc_string.replace('#-#', '\n    # ')
         out += f'\n{doc_string.strip()}'
     return out

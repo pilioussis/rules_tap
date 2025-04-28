@@ -74,7 +74,9 @@ def create_chunks(config: Config, runtime_loggers: list[RuntimeLogger], chunk_ti
             
             text = '\n\n'.join(lines)
             hash_id = get_hash(text)
-            file_name = config.chunk_dir / f'runtime_{hash_id}.txt'
+            file_name = config.chunk_dir / 'runtime' / f'{hash_id}.txt'
+            file_name.parent.mkdir(parents=True, exist_ok=True)
+
 
             with open(file_name, 'w') as f:
                 f.write(text)
