@@ -16,6 +16,7 @@ class Config:
     module_names: list[str]
     open_api_key: str
     work_dir: Path
+    ignore_paths: list[str]
 
     @property
     def chunk_dir(self):
@@ -50,7 +51,8 @@ def rm_dir(dir: Path):
 
 def load_config(config: dict):
     return Config(
-        module_names=config['MODULE_PATH'],
+        module_names=config['MODULE_PATHS'],
+        ignore_paths=config['IGNORE_PATHS'],
         open_api_key=config['OPENAI_API_KEY'],
         work_dir=Path(config['WORKDIR']),
     )

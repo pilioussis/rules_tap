@@ -1,6 +1,8 @@
 services:
   web:
-    build: .
+    build:  
+      context: ./
+      dockerfile: ./toy_django_project/Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     working_dir: /app/toy_django_project
     volumes:
@@ -14,6 +16,20 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       
+  live:
+    build:  
+      context: ./live_responder
+      additional_contexts:
+        chunks: ./toy_django_project
+    command: python server/main.py
+    working_dir: /app/code
+    volumes:
+      - ./live_responder/server:/app/code/server
+    env_file:
+      - ~/.pharos/aws_dev_bucket_user.env
+    ports:
+      - "8003:8003"
+
 
   db:
     image: postgres:17

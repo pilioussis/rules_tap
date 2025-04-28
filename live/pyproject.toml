@@ -1,0 +1,15 @@
+# package = false
+
+[project]
+name="live"
+version="0.0.1"
+requires-python = ">=3.13"
+dependencies = [
+    "colorama==0.4.6",
+    "fastapi==0.115.12",
+    "uvicorn==0.34.2",
+    "langchain==0.3.24",
+    "langchain-community==0.3.22",
+    "langchain-openai==0.3.14",
+    "faiss-cpu==1.10.0",
+]

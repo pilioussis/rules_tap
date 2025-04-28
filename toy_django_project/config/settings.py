@@ -188,6 +188,8 @@ print(BASE_DIR)
 
 RULES_TAP_CONFIG = {
     'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
-    'MODULE_PATH': ['/app/toy_django_project'],
+    'MODULE_PATHS': ['/app/toy_django_project'],
+    'IGNORE_PATHS': ['**/migrations/**'],
     'WORKDIR': BASE_DIR / 'out',
+	
 }
