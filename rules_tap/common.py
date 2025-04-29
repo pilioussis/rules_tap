@@ -55,7 +55,7 @@ def rm_dir(dir: Path):
 
 def load_config(config: dict):
     return ContextConfig(
-        module_names=config['MODULE_PATH'],
+        module_names=config['MODULE_PATHS'],
         open_api_key=config['OPENAI_API_KEY'],
         work_dir=Path(config['WORKDIR']),
         file_chunk_exclude_paths=config['FILE_CHUNK_EXCLUDE_PATHS'],

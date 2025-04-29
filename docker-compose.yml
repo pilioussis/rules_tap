@@ -29,7 +29,7 @@ services:
     env_file:
       - ~/.pharos/aws_dev_bucket_user.env
     ports:
-      - "0.0.0.0:8003:8003"
+      - "8003:8003"
 
   db:
     image: postgres:17

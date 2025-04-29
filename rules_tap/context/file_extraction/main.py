@@ -13,7 +13,7 @@ def get_file_paths(config: ContextConfig, module_path: str):
 	root = Path(module_path)
 	if not root.exists():
 		raise Exception(f"Module path {module_path} does not exist")
-	for f in root.rglob('*'):
+	for f in root.rglob('*.py'):
 		if f.is_file():
 			file_str = str(f)
 			if any(fnmatch.fnmatch(file_str, pattern) for pattern in exclude):
