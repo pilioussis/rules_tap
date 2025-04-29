@@ -1,11 +1,11 @@
 from contextlib import ExitStack
-from rules_tap.common import Config
+from rules_tap.common import ContextConfig
 from .chunk_from_test_case import chunk_time_tracker, run_tests
 from .logs_to_chunks import create_chunks
 from .loggers import get_loggers
 
 
-def runtime_extraction(config: Config):
+def runtime_extraction(config: ContextConfig):
 	runtime_loggers = get_loggers(config=config)
 
 	with ExitStack() as stack:

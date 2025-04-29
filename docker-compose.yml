@@ -21,14 +21,15 @@ services:
       context: ./live_responder
       additional_contexts:
         chunks: ./toy_django_project
-    command: python server/main.py
-    working_dir: /app/live_responder
+    command: python -m live_responder.server
+    working_dir: /app
     volumes:
-      - ./live_responder/server:/app/live_responder/server
+      - ./live_responder/live_responder:/app/live_responder
+      - ./toy_django_project/out:/app/data
     env_file:
       - ~/.pharos/aws_dev_bucket_user.env
     ports:
-      - "8003:8003"
+      - "0.0.0.0:8003:8003"
 
   db:
     image: postgres:17

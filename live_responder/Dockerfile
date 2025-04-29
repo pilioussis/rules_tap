@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 RUN echo "export PS1=\"\[\e[33;44m\] \u \[\e[0m\]\[\e[34;43m\] @\h \[\e[0m\]\[\e[33;44m\] \w \[\e[0m\]\[\e[34;43m\]⮕ \[\e[0m\] \"" > /root/.bashrc
 
-WORKDIR /app/live_responder
+WORKDIR /app
 
 COPY ./pyproject.toml ./pyproject.toml
 COPY ./uv.lock ./uv.lock
@@ -13,7 +13,7 @@ ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 RUN uv sync
 RUN uv lock
 
-COPY ./server ./server
+COPY ./live_responder ./live_responder
 
 COPY --from=chunks ./out/chunks ./data/chunks
 

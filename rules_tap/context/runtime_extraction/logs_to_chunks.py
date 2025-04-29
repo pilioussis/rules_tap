@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from colorama import Fore, Style, Back
-from rules_tap.common import get_hash, Config
+from rules_tap.common import get_hash, ContextConfig
 
 from .chunk_from_test_case import TrackAction
 from contextlib import ExitStack
@@ -51,7 +51,7 @@ class TrackerGroup:
         return out
 
 
-def create_chunks(config: Config, runtime_loggers: list[RuntimeLogger], chunk_times: list[tuple[TrackAction, datetime]]):
+def create_chunks(config: ContextConfig, runtime_loggers: list[RuntimeLogger], chunk_times: list[tuple[TrackAction, datetime]]):
     print()
     print(f"{Back.BLUE}{Fore.WHITE} Parsing logs for test cases: {Style.RESET_ALL}")
     with ExitStack() as stack:

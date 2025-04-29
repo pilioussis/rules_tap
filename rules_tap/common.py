@@ -12,7 +12,7 @@ def get_hash(text: str) -> int:
     return hash_id >> 1 # shift right to avoid overflow due to unsigned
 
 @dataclasses.dataclass
-class Config:
+class ContextConfig:
     module_names: list[str]
     file_chunk_exclude_paths: list[str]
     open_api_key: str
@@ -54,7 +54,7 @@ def rm_dir(dir: Path):
 
 
 def load_config(config: dict):
-    return Config(
+    return ContextConfig(
         module_names=config['MODULE_PATH'],
         open_api_key=config['OPENAI_API_KEY'],
         work_dir=Path(config['WORKDIR']),

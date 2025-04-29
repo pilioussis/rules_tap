@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 import contextlib
-from rules_tap.common import Config
+from rules_tap.common import ContextConfig
 from .sql import log_sql_to_file, sql_line_processor
 from .stack_trace import log_stack_trace_info_to_file, stack_trace_line_processor
 
@@ -14,7 +14,7 @@ class RuntimeLogger:
 	logger_args: dict = field(default_factory=dict)
 	
 
-def get_loggers(config: Config) -> list[RuntimeLogger]:
+def get_loggers(config: ContextConfig) -> list[RuntimeLogger]:
 	return [
 		RuntimeLogger(
 			context_manager=log_stack_trace_info_to_file,

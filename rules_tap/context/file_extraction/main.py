@@ -1,6 +1,5 @@
 from contextlib import ExitStack
-from rules_tap.common import Config, get_hash, rm_dir
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from rules_tap.common import ContextConfig, get_hash, rm_dir
 from pathlib import Path
 import fnmatch
 
@@ -8,7 +7,7 @@ GLOBAL_EXCLUDE_FILES = [
 	'**/*.pyc',
 ]
 
-def get_file_paths(config: Config, module_path: str):
+def get_file_paths(config: ContextConfig, module_path: str):
 	exclude = GLOBAL_EXCLUDE_FILES + config.file_chunk_exclude_paths
 	files = []
 	root = Path(module_path)
@@ -22,7 +21,7 @@ def get_file_paths(config: Config, module_path: str):
 			files.append(file_str)
 	return files
 
-def file_extraction(config: Config):
+def file_extraction(config: ContextConfig):
 	code_dir = config.chunk_dir / "code"
 	rm_dir(code_dir)
 	for module in config.module_names:
@@ -40,7 +39,7 @@ def file_extraction(config: Config):
 			# write content to new chunk file
 			chunk_file.open('w', encoding='utf-8').write(content)
 
-# def file_extraction(config: Config):
+# def file_extraction(config: ContextConfig):
 # 	docs = []
 
 # 	for module in config.module_names:
