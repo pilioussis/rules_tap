@@ -34,7 +34,7 @@ def search(query: str, k: int, config: EmbeddingConfig) -> List[str]:
 	db = FAISS.load_local(
 		folder_path=config.work_dir,
 		embeddings=embeddings,
-		index_name=config.index_name,
+		index_name=config.vector_index_file,
 		allow_dangerous_deserialization=True
 	)
 	

@@ -17,7 +17,7 @@ class EmbeddingConfig:
     
     @property
     def vector_index_file(self):
-        return self.work_dir / 'vector_index.faiss'
+        return self.work_dir / 'vector_index'
 
     @property
     def id_to_text_file(self):

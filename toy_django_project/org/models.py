@@ -32,9 +32,15 @@ class User(models.Model):
 
 
 class OrgType(models.TextChoices):
-        ACTIVE = 'AC', 'Active'
-        PENDING = 'PE', 'Pending'
-        INACTIVE = 'IN', 'Inactive'
+    """
+    Represents the status of an organisation.
+    ACTIVE - The organisation is viewable to all users and is actively using the product.
+    PENDING - The organisation is viewable to all users but is not actively using the product.
+    INACTIVE - The organisation has requested to be removed from the product.
+    """
+    ACTIVE = 'AC', 'Active'
+    PENDING = 'PE', 'Pending'
+    INACTIVE = 'IN', 'Inactive'
 
 class OrgQuerySet(models.QuerySet):
     def viewable_in_search(self):
