@@ -15,21 +15,20 @@ services:
       - ~/.pharos/aws_dev_bucket_user.env
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
-      
+
   live:
     build:  
       context: ./live_responder
       additional_contexts:
         chunks: ./toy_django_project
     command: python server/main.py
-    working_dir: /app/code
+    working_dir: /app/live_responder
     volumes:
-      - ./live_responder/server:/app/code/server
+      - ./live_responder/server:/app/live_responder/server
     env_file:
       - ~/.pharos/aws_dev_bucket_user.env
     ports:
       - "8003:8003"
-
 
   db:
     image: postgres:17

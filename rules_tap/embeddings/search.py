@@ -4,8 +4,9 @@ from typing import List
 
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
+from rules_tap.common import Config
 
-def get_context(query: str, k: int = 5) -> List[str]:
+def search(query: str, k: int = 5, config: Config) -> List[str]:
 	"""
 	Retrieves text chunks relevant to a query from a FAISS vector store.
 
@@ -21,8 +22,6 @@ def get_context(query: str, k: int = 5) -> List[str]:
 		ValueError: If the OPENAI_API_KEY environment variable is not set.
 	"""
 	# Define paths assuming index was saved to /app/data with name 'vector_index'
-	db_folder_path = "/app/code/data"
-	index_name = "vector_index"
 
 	if not os.getenv("OPENAI_API_KEY"):
 		raise ValueError("OPENAI_API_KEY environment variable not set.")
@@ -33,9 +32,9 @@ def get_context(query: str, k: int = 5) -> List[str]:
 	# We assume True here for flexibility but review if necessary.
 
 	db = FAISS.load_local(
-		folder_path=db_folder_path,
+		folder_path=config.work_dir,
 		embeddings=embeddings,
-		index_name=index_name,
+		index_name=config.index_name,
 		allow_dangerous_deserialization=True
 	)
 	
@@ -47,24 +46,5 @@ def get_context(query: str, k: int = 5) -> List[str]:
 	except Exception as e:
 		print(f"Error retrieving documents: {e}")
 		return []
-
-a = get_context('hello', 1)
-print(a)
-# Example Usage (optional, uncomment to test locally)
-# if __name__ == "__main__":
-#     # Ensure OPENAI_API_KEY is set in your environment
-#     # Ensure the FAISS index exists at /app/data/vector_index.faiss & .pkl
-#     test_query = "example query about codebase"
-#     try:
-#         context_chunks = get_context(test_query, k=3)
-#         if context_chunks:
-#             print(f"Found {len(context_chunks)} relevant chunks for '{test_query}':")
-#             for i, chunk in enumerate(context_chunks):
-#                 print(f"--- Chunk {i+1} ---")
-#                 print(chunk)
-#         else:
-#             print(f"No context found or error occurred for query: '{test_query}'")
-#     except ValueError as e:
-#         print(e)
 
 	

@@ -21,6 +21,10 @@ class Config:
     @property
     def chunk_dir(self):
         return self.work_dir / 'chunks'
+
+    @property
+    def code_dir(self):
+        return self.chunk_dir / 'code'
     
     @property
     def runtime_dir(self):
