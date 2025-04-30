@@ -1,20 +1,20 @@
 from rules_tap.common import ViewableTable
-from .models import SupportPerson, Org, Worker
+from .models import User, Org, Worker
 
 VIEWABLES_TABLES = [
 	ViewableTable(
-		model_class=SupportPerson,
-		fields=['id', 'full_name', 'role'],
-		rows=SupportPerson.objects.viewable,
+		model_class=User,
+		fields=['id', 'first_name', 'role'],
+		viewable_row_fn=User.objects.viewable,
 	),
 	ViewableTable(
 		model_class=Org,
 		fields=['id', 'name', 'type'],
-		rows=Org.objects.viewable,
+		viewable_row_fn=Org.objects.viewable,
 	),	
 	ViewableTable(
 		model_class=Worker,
 		fields=['id', 'name', 'type'],
-		rows=Worker.objects.viewable,
+		viewable_row_fn=Worker.objects.viewable,
 	),
 ]

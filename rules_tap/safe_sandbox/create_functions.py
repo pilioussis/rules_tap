@@ -11,73 +11,46 @@ User = get_user_model()
 @dataclass
 class Cte:
 	name: str
-	query_string: str
-	columns: list[str]
-	def get_token(self, field_name: str) -> str:
-		return f"<<{self.name}:{field_name}>>"
+	query: str
 
+def create_cte(ctes: list[Cte]):
+	if not ctes:
+		raise Exception("No CTEs provided")
 
-def get_schema_context():
-	context = []
-	for t in TABLES:
-		with connection.cursor() as cursor:
-			cursor.execute("""
-				SELECT
-					a.attname AS column_name,
-					pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type,
-					fk.ref_table
-				FROM pg_attribute a
-				LEFT JOIN (
-				SELECT
-					con.conrelid,
-					unnest(con.conkey) AS attnum,
-					con.confrelid::regclass::text AS ref_table
-				FROM pg_constraint con
-				WHERE con.contype = 'f'
-				) fk ON a.attrelid = fk.conrelid AND a.attnum = fk.attnum
-				WHERE a.attrelid = %s::regclass
-				AND a.attnum > 0
-				AND NOT a.attisdropped
-				ORDER BY a.attnum;
-			""", [t.model._meta.db_table])
-			columns = cursor.fetchall()
-			columns_context = []
-			for name, type, fk_ref in columns:
-				fk_str = f" REFERENCES {fk_ref}" if fk_ref else ""
-				columns_context.append(f"  {name} {type}{fk_str}")
+	cte_string = f"""WITH {','.join(
+		f"""{c.name} AS ({c.query})"""
+	for c in ctes)}"""
+	return cte_string
 
-			columns_context_string = ",\n".join(columns_context)
-			curr = f"CREATE TABLE {t.model._meta.db_table} (\n{columns_context_string}\n);"
-			context.append(curr)
-	return context
 
 def create_functions(config: ContextConfig):
-	stub_user = User(id=1122334455)
-
-	stub_user.top_level_manager = False
-	ctes = [Cte(query_string=str(User.objects.filter(id='global_user_id::int').query), name='account_user', columns=['id', 'organisation_id'])]
-	cte_string = ""
-	if ctes:
-		cte_string = f"""WITH {','.join(
-			f"""{c.name} AS ({c.query_string})"""
-		for c in ctes)}"""
+	field_map = {
+		'id': 1122334455,
+		'role': '998877',
+	}
+	stub_user = User(**field_map)
+	user_cte_name = 'user_cte'
+	user_cte = Cte(query=str(User.objects.filter(id=field_map['id']).only('id', 'role').query), name=user_cte_name)
+	cte_string = create_cte([user_cte])
 	
 	function_strings = []
 
 	for t in config.viewable_tables:
-		query_string = cte_string + '\n\n' + str(t.rows(user=stub_user).only(*t.fields).query)
+		print(t.model_class._meta.db_table)
+		query_string = cte_string + '\n\n' + str(t.viewable_row_fn(stub_user).only(*t.fields).query)
+		print(query_string)
 
-		for cte in ctes:
-			for column in cte.columns:
-				query_string = query_string.replace(cte.get_token(column), f'(SELECT {column} FROM {cte.name})')
+		for name, value in field_map.items():
+			query_string = query_string.replace(f'{value}', f'(SELECT {name} FROM {user_cte_name})')
 
-		columns = ', '.join([f'{field_name} {t.model._meta.db_table}.{field_name}%TYPE' for field_name in t.fields])
+		columns = ', '.join([f'{field_name} {t.model_class._meta.db_table}.{field_name}%TYPE' for field_name in t.fields])
+
 		function_string = f"""
-		CREATE FUNCTION ai_sandbox.{t.model._meta.db_table}(global_user_id TEXT)
+		CREATE FUNCTION ai_sandbox.{t.model_class._meta.db_table}(global_user_id TEXT)
 		RETURNS TABLE({columns})
-		LANGUAGE sql
-		STABLE
-		SECURITY DEFINER
+		LANGUAGE sql  // This must be sql so to avoid an optimization fence around the function
+		STABLE            // These functions will never modify the db
+		SECURITY DEFINER  // Allow this function to expose resources the user won't have access to
 		AS $$
 			{query_string}
 		$$;

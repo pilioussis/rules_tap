@@ -32,9 +32,9 @@ services:
       - "8003:8003"
 
   db:
-    image: postgres:17
+    image: postgres:16
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - toy_pg_data:/var/lib/postgresql/data/
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -43,4 +43,4 @@ services:
       - "5432:5432"
 
 volumes:
-  postgres_data: 
+  toy_pg_data: 

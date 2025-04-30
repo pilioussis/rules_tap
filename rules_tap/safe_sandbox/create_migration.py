@@ -56,7 +56,7 @@ def write_migration_statements(migration_file: Path, migration_statements: list[
 	migration_commands = []
 	for statement in migration_statements:
 		migration_commands.append(
-			f"""migrations.RunSQL('''{statement}'''),"""
+			f"""        migrations.RunSQL('''{statement}'''),"""
 		)
 	migration_string =  '\n'.join(migration_commands)
 

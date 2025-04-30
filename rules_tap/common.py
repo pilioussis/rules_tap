@@ -4,10 +4,11 @@ import dataclasses
 from typing import Optional, Callable
 from pathlib import Path
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.apps import AppConfig
 from django.apps import apps
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 def get_hash(text: str) -> int:
@@ -21,7 +22,7 @@ def get_hash(text: str) -> int:
 class ViewableTable:
 	model_class: models.base.ModelBase
 	fields: list[str]
-	rows: Callable[[User], QuerySet]
+	viewable_row_fn: Callable[[User], QuerySet]
 
 
 @dataclasses.dataclass

@@ -1,8 +1,66 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db.models import F, Value, ExpressionWrapper, BooleanField, Q 
+from django.db.models.lookups import Exact   # existing equality lookup
+
+
+
+def equals(lhs, rhs):
+    return ExpressionWrapper(lhs == rhs, output_field=BooleanField())
+
+class UserQuerySet(models.QuerySet):
+	def viewable(self, user, **kwargs):
+		"""Only admins should be able to see all users. Other users can only see themselves."""
+		return self.filter(
+			id__in=models.Case(
+				models.When(
+					Exact(user.role, Value(User.RoleType.ADMIN)),
+					then=models.Subquery(User.objects.filter(deactivated__isnull=True).values('id'))
+				),
+				default=models.Value(user.id),
+				output_field=models.IntegerField()
+			),
+			deactivated__isnull=True
+		)
+
+class UserManager(BaseUserManager):
+	def create_user(self, email, password=None, **kwargs):
+		if not email:
+			raise ValueError('Users must have a valid email address.')
+
+		user = self.model(
+			email=self.normalize_email(email)
+		)
+
+		user.set_password(password)
+		user.save()
+
+		return user
+
+	def create_superuser(self, email, password, **kwargs):
+		user = self.create_user(email, password, **kwargs)
+
+		user.is_admin = True
+		user.save()
+
+		return user
+
+
+UserManagerQueryset = UserManager.from_queryset(UserQuerySet)
+
+
+class RoleType(models.TextChoices):
+		ADMIN = 'AD', 'Admin'
+		AUTH = 'AU', 'Authenticated'
+		PUBLIC = 'PB', 'Public'
+
 
 class User(AbstractBaseUser):
+	objects = UserManagerQueryset()
+	RoleType = RoleType
+
 	id = models.AutoField(primary_key=True)
+
 	email = models.EmailField(unique=True, blank=True)
 	USERNAME_FIELD = 'email'
 
@@ -11,35 +69,9 @@ class User(AbstractBaseUser):
 
 	is_admin = models.BooleanField(
 		default=False,
-		help_text="Is internal pharos user, ie dean + dave",
+		help_text="deprecated",
 	)
-	is_active = models.BooleanField(default=True)
 
-	created = models.DateTimeField(auto_now_add=True)
-
-
-class RoleType(models.TextChoices):
-		ADMIN = 'AD', 'Admin'
-		AUTH = 'AU', 'Authenticated'
-		PUBLIC = 'PB', 'Public'
-
-class SupportPersonQuerySet(models.QuerySet):
-	def viewable(self, user, **kwargs):
-		"""Only admins should be able to see all users. Other users can only see themselves."""
-		return self.filter(
-			id__in=models.Case(
-				models.When(role=SupportPerson.RoleType.ADMIN, then=models.Subquery(SupportPerson.objects.filter(deactivated__isnull=True).values('id'))),
-				default=models.Value(user.id),
-				output_field=models.IntegerField()
-			),
-			deactivated__isnull=True
-		)
-
-
-class SupportPerson(models.Model):
-	objects = SupportPersonQuerySet.as_manager()
-	RoleType = RoleType
-	full_name = models.CharField(max_length=255)
 	created = models.DateTimeField(auto_now_add=True)
 	deactivated = models.DateTimeField(null=True, blank=True)
 	role = models.CharField(
@@ -72,14 +104,15 @@ class OrgQuerySet(models.QuerySet):
 			Authenticated users - View active and pending organisations.
 			Admins - View all organisations.
 		"""
-		types = []
-		if user.role == SupportPerson.RoleType.PUBLIC:
-			types = [OrgType.ACTIVE]
-		elif user.role == SupportPerson.RoleType.AUTH:
-			types = [OrgType.ACTIVE, OrgType.PENDING]
-		elif user.role == SupportPerson.RoleType.ADMIN:
-			types = [OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE]
-		return self.filter(type__in=types)
+
+		return self.filter(
+			type__in=models.Case(
+				models.When(Exact(user.role, Value(User.RoleType.PUBLIC)), then=models.Value([OrgType.ACTIVE])),
+				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value([OrgType.ACTIVE, OrgType.PENDING])),
+				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value([OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE])),
+				output_field=models.CharField()
+			)
+		)
 		
 
 class Org(models.Model):
@@ -103,16 +136,21 @@ class WorkerType(models.TextChoices):
 class WorkerQuerySet(models.QuerySet):
 	def viewable(self, user, **kwargs):
 		""" Returns a queryset of workers that are viewable by the user. Only Admins can view undercover agents."""
-		viewable_types = [
+		base_types = [
 			WorkerType.EMPLOYEE,
 			WorkerType.CONTRACTOR,
 		]
-		if user.role == SupportPerson.RoleType.ADMIN:
-			viewable_types.append(WorkerType.UNDERCOVER_AGENT)
+		admin_types = [
+			*base_types,
+			WorkerType.UNDERCOVER_AGENT
+		]
 
 		return self.filter(
 			 org__in=Org.objects.viewable(user),
-			 type__in=viewable_types,
+			 type__in=models.Case(
+				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value(admin_types)),
+				default=models.Value(base_types),
+			)
 		)
 	
 	def viewable_in_user_search(self, user):
@@ -137,4 +175,3 @@ class Worker(models.Model):
 	)
 	name = models.CharField(max_length=255)
 	description = models.TextField(null=True, blank=True)
-

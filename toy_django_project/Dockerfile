@@ -4,7 +4,7 @@ COPY ./toy_django_project/.bashrc /root/.bashrc
 WORKDIR /app/toy_django_project
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends build-essential gcc gfortran python3-dev \
+ && apt-get install -y --no-install-recommends build-essential gcc gfortran python3-dev postgresql-client \
  && rm -rf /var/lib/apt/lists/*
 
 COPY ./toy_django_project/pyproject.toml ./pyproject.toml
