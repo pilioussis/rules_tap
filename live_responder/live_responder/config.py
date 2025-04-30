@@ -6,6 +6,7 @@ class EmbeddingConfig:
     work_dir: Path
     chunk_size: int = 1000
     chunk_overlap: int = 200
+    model: str = "text-embedding-3-large"
 
     @property
     def chunk_dir(self):

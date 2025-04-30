@@ -1,54 +1,12 @@
-# -*- coding: utf-8 -*-
-import csv, logging, pytz, uuid
 from typing import Callable
-import time
-from django.db import connection
 from dataclasses import dataclass
-from django.db import models
-from decimal import Decimal
-from datetime import timedelta, datetime
-from colorama import Style, Fore, Back
+from django.db import models, connection
 from django.db.models import QuerySet
+from django.contrib.auth import get_user_model
+from rules_tap.common import ContextConfig
 
-from django.db import IntegrityError
-from psycopg.errors import UniqueViolation, ExclusionViolation
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
-from django.contrib.contenttypes.models import ContentType
-from django.db import transaction, connection
-from django.db.models import Avg, Count, F, Max, Min, Sum, Q, Prefetch, Case, When, Value
-from django.db.models.functions import Extract, TruncMonth, TruncDate, TruncDay, TruncHour, TruncTime
-from django.conf import settings
-from types import MethodType
+User = get_user_model()
 
-
-from apps.account.models import User
-from apps.activity.models import Event
-from apps.advice.models import AdviceSubcategory, AdviceCategory, AdviceSection
-from apps.answer.models import ANSWER_MODELS, AnswerText, AnswerDate, AnswerDecimal, AnswerBoolean, AnswerFile, InitialAnswer
-from apps.answer.query import get_answer_dates_for_notification
-from apps.email.models import Email
-from apps.file.models import File, Folder
-from apps.field.models import Field, TableField, HelpInfo, FieldNotification
-from apps.form.models import Form
-from apps.form_action.models import FormAction
-from apps.form_action.tasks import create_scheduled_actions
-from apps.module.models import ModuleTemplate, Module
-from apps.organisation.models import Organisation, Team
-from apps.pdf.models import PdfGenerator, Pdf
-from apps.record.models import Record
-from apps.suite.models import Suite
-from apps.template.models import FormSet, Template
-
-from apps.answer.serializers import AnswerTextSerializer
-from apps.organisation.serializers import TeamSerializer
-
-@dataclass
-class Table:
-	model: models.base.ModelBase
-	rows: Callable[[User], QuerySet]
-	fields: list[str]
 
 @dataclass
 class Cte:
@@ -58,10 +16,6 @@ class Cte:
 	def get_token(self, field_name: str) -> str:
 		return f"<<{self.name}:{field_name}>>"
 
-TABLES = [
-	Table(model=Record, fields=['id', 'name'], rows=Record.objects.viewable),
-	Table(model=AnswerText, fields=['id', 'content'], rows=AnswerText.objects.viewable),
-]
 
 def get_schema_context():
 	context = []
@@ -97,8 +51,8 @@ def get_schema_context():
 			context.append(curr)
 	return context
 
-def create_functions():
-	stub_user = User(id='<<account_user:id>>', organisation_id='<<account_user:organisation_id>>')
+def create_functions(config: ContextConfig):
+	stub_user = User(id=1122334455)
 
 	stub_user.top_level_manager = False
 	ctes = [Cte(query_string=str(User.objects.filter(id='global_user_id::int').query), name='account_user', columns=['id', 'organisation_id'])]
@@ -110,7 +64,7 @@ def create_functions():
 	
 	function_strings = []
 
-	for t in TABLES:
+	for t in config.viewable_tables:
 		query_string = cte_string + '\n\n' + str(t.rows(user=stub_user).only(*t.fields).query)
 
 		for cte in ctes:

@@ -17,47 +17,51 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-development-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
+
+AUTH_USER_MODEL = 'org.User'
+
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'org.apps.OrgConfig',
-    'rules_tap',
+	'django.contrib.admin',
+	'django.contrib.auth',
+	'django.contrib.contenttypes',
+	'django.contrib.sessions',
+	'django.contrib.messages',
+	'django.contrib.staticfiles',
+	'org.apps.OrgConfig',
+	'rules_tap',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.middleware.security.SecurityMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
+	{
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+		'DIRS': [],
+		'APP_DIRS': True,
+		'OPTIONS': {
+			'context_processors': [
+				'django.template.context_processors.debug',
+				'django.template.context_processors.request',
+				'django.contrib.auth.context_processors.auth',
+				'django.contrib.messages.context_processors.messages',
+			],
+		},
+	},
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
@@ -75,21 +79,21 @@ host_port, name = host_port_name.split('/')
 host, port = host_port.split(':')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': name,
-        'USER': user,
-        'PASSWORD': password,
-        'HOST': host,
-        'PORT': port,
-        'TEST': {
-            'NAME':f"{name}_test",
-            'USER': user,
-            'PASSWORD': password,
-            'HOST': host,
-            'PORT': port,
-        },
-    }
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': name,
+		'USER': user,
+		'PASSWORD': password,
+		'HOST': host,
+		'PORT': port,
+		'TEST': {
+			'NAME':f"{name}_test",
+			'USER': user,
+			'PASSWORD': password,
+			'HOST': host,
+			'PORT': port,
+		},
+	}
 }
 
 
@@ -97,67 +101,67 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+	{
+		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+	},
 ]
 
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "filters": {
-        "require_debug_false": {
-            "()": "django.utils.log.RequireDebugFalse",
-        },
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
-    "formatters": {
-        "django.server": {
-            "()": "django.utils.log.ServerFormatter",
-            "format": "[{server_time}] {message}",
-            "style": "{",
-        }
-    },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
-        },
-        "django.server": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "django.server",
-        },
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false"],
-            "class": "django.utils.log.AdminEmailHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "mail_admins"],
-            "level": "INFO",
-        },
-        "django.server": {
-            "handlers": ["django.server"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
+	"version": 1,
+	"disable_existing_loggers": False,
+	"filters": {
+		"require_debug_false": {
+			"()": "django.utils.log.RequireDebugFalse",
+		},
+		"require_debug_true": {
+			"()": "django.utils.log.RequireDebugTrue",
+		},
+	},
+	"formatters": {
+		"django.server": {
+			"()": "django.utils.log.ServerFormatter",
+			"format": "[{server_time}] {message}",
+			"style": "{",
+		}
+	},
+	"handlers": {
+		"console": {
+			"level": "INFO",
+			"filters": ["require_debug_true"],
+			"class": "logging.StreamHandler",
+		},
+		"django.server": {
+			"level": "INFO",
+			"class": "logging.StreamHandler",
+			"formatter": "django.server",
+		},
+		"mail_admins": {
+			"level": "ERROR",
+			"filters": ["require_debug_false"],
+			"class": "django.utils.log.AdminEmailHandler",
+		},
+	},
+	"loggers": {
+		"django": {
+			"handlers": ["console", "mail_admins"],
+			"level": "INFO",
+		},
+		"django.server": {
+			"handlers": ["django.server"],
+			"level": "INFO",
+			"propagate": False,
+		},
+	},
 }
 
 
@@ -184,11 +188,12 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' 
 
-print(BASE_DIR)
-
 RULES_TAP_CONFIG = {
-    'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
-    'MODULE_PATHS': ['/app/toy_django_project/org'],
-    'WORKDIR': BASE_DIR / 'out',
-    'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py'],
+	'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
+	'MODULE_PATHS': ['/app/toy_django_project/org'],
+	'WORKDIR': BASE_DIR / 'out',
+	'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py'],
+	'SANDBOX_DB_USER': 'mr_ai',
+	'MIGRATIONS_APP_LABEL': 'org',
+	'TABLE_LOADER_CLASS_STRING': 'org.sandbox.VIEWABLES_TABLES',
 }
