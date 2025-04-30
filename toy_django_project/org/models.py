@@ -1,12 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.db.models import F, Value, ExpressionWrapper, BooleanField, Q 
-from django.db.models.lookups import Exact   # existing equality lookup
+from django.db.models import Value
+from django.db.models.lookups import Exact
 
-
-
-def equals(lhs, rhs):
-    return ExpressionWrapper(lhs == rhs, output_field=BooleanField())
 
 class UserQuerySet(models.QuerySet):
 	def viewable(self, user, **kwargs):
@@ -14,7 +10,7 @@ class UserQuerySet(models.QuerySet):
 		return self.filter(
 			id__in=models.Case(
 				models.When(
-					Exact(user.role, Value(User.RoleType.ADMIN)),
+					Exact(user.role, User.RoleType.ADMIN),
 					then=models.Subquery(User.objects.filter(deactivated__isnull=True).values('id'))
 				),
 				default=models.Value(user.id),
