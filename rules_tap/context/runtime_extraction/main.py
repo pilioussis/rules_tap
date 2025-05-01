@@ -12,14 +12,16 @@ def runtime_extraction(config: ContextConfig):
 		# Start listening for start/stop signals
 		time_chunks = stack.enter_context(chunk_time_tracker())
 
-		# Enable loggers for each type
+		# Enable loggers for each type (SQL statements & Function traces)
 		for logger in runtime_loggers:
 			stack.enter_context(logger.context_manager(logger.logfile, **logger.logger_args))
 
-		# Run code to start capturing context
+		# Run code to start logging/capturing context
 		run_tests()
+
 	for t in time_chunks:
 		print(t)
+
 	# Pluck useful sections in the logs to embeddable chunks
 	create_chunks(config, runtime_loggers, time_chunks)
 

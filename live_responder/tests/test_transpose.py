@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
-from live_responder.transpose import transpose_to_sandbox
+from live_responder.sql_gen.transpose import transpose_to_sandbox
 from live_responder.config import EmbeddingConfig
 
 class TestTranspose(unittest.TestCase):

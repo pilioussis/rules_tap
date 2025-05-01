@@ -1,4 +1,3 @@
-import hashlib
 import shutil
 import dataclasses
 from typing import Optional, Callable
@@ -7,33 +6,34 @@ from django.db import models
 from django.db.models import QuerySet
 from django.apps import AppConfig
 from django.apps import apps
-from django.contrib.auth import get_user_model
-User = get_user_model()
-
-
-def get_hash(text: str) -> int:
-	hash_obj = hashlib.md5(text.encode('utf-8'))
-	hash_bytes = hash_obj.digest()[:8]
-	hash_id = int.from_bytes(hash_bytes, byteorder='big', signed=False)
-	return hash_id >> 1 # shift right to avoid overflow due to unsigned
+from django.contrib.auth.models import AbstractBaseUser
 
 
 @dataclasses.dataclass
 class ViewableTable:
+	""" Represents a table that the sandbox will have access to, with a scoped set of columns"""
 	model_class: models.base.ModelBase
 	fields: list[str]
-	viewable_row_fn: Callable[[User], QuerySet]
+	viewable_row_fn: Callable[[AbstractBaseUser], QuerySet]
 
 
 @dataclasses.dataclass
 class ContextConfig:
-	module_names: list[str]
-	file_chunk_exclude_paths: list[str]
-	table_loader_class_string: str
+	""" The config that controls where context is gathered from"""
+
+	module_names: list[str]  # Search paths for files that will be chunked and given to the LLM
+	
+	file_chunk_exclude_paths: list[str] # glob of exclude paths for the above directories
+
+	viewable_db_tables: str # The restricted set of tables the sandbox will expose
+
 	open_api_key: str
-	work_dir: Path
-	migrations_app_label: str
-	sandbox_db_user: str
+
+	work_dir: Path # Where context / working files are stored
+
+	migrations_app_label: str # The Django app where the sandbox migrations will be stored
+
+	sandbox_db_user: str # The Postgres db user that will access the sandbox
 
 	_migrations_app: Optional[AppConfig] = None
 	_viewable_tables: Optional[list[ViewableTable]] = None
@@ -46,7 +46,7 @@ class ContextConfig:
 	def viewable_tables(self):
 		if self._viewable_tables:
 			return self._viewable_tables
-		module_path, var_name = self.table_loader_class_string.rsplit('.', 1)
+		module_path, var_name = self.viewable_db_tables.rsplit('.', 1)
 		module = __import__(module_path, fromlist=[var_name])
 		viewable_tables: list[ViewableTable] = getattr(module, var_name)
 
@@ -69,6 +69,7 @@ class ContextConfig:
 	
 	@property
 	def runtime_dir(self):
+		""" Logs will be stored here temporarily, to be aggregated into useful chunks """
 		return self.work_dir / 'runtime'
 	
 	@property
@@ -99,12 +100,14 @@ def rm_dir(dir: Path):
 
 
 def load_config(config: dict):
+	""" Loads the config from django's settings module"""
+
 	return ContextConfig(
 		module_names=config['MODULE_PATHS'],
 		open_api_key=config['OPENAI_API_KEY'],
 		work_dir=Path(config['WORKDIR']),
 		file_chunk_exclude_paths=config['FILE_CHUNK_EXCLUDE_PATHS'],
-		table_loader_class_string=config['TABLE_LOADER_CLASS_STRING'],
+		viewable_db_tables=config['VIEWABLE_DB_TABLES'],
 		migrations_app_label=config['MIGRATIONS_APP_LABEL'],
 		sandbox_db_user=config['SANDBOX_DB_USER']
 	)

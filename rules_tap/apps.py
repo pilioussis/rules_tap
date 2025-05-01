@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 class RulesTapConfig(AppConfig):
-    # default_auto_field = 'django.db.models.BigAutoField'
+    # The configuration for the django_cli app
     name = 'rules_tap' 

@@ -14,13 +14,12 @@ def create_migration(config: ContextConfig):
 	"""
 	
 	migration_file = create_empty_migration(config)
-
 	migration_statements = get_migration_statements(config)
-
 	write_migration_statements(migration_file, migration_statements)
 
 
 def create_empty_migration(config: ContextConfig):
+	""" Creates a new migration that will be filled with sandbox commands """
 	migration_name = f"sandbox_ai_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 	call_command('makemigrations', config.migrations_app.label, empty=True, name=migration_name)
 
@@ -30,8 +29,7 @@ def create_empty_migration(config: ContextConfig):
 
 
 def get_migration_file(config: ContextConfig, migration_name: str):
-	""" Gets the most recent migration file that matches the migration name.
-	"""
+	""" Gets the most recent migration file that matches the migration name. """
 	migration_file_glob = f"*{migration_name}.py"
 	migration_file = next(Path(config.migrations_app.path).glob(f'migrations/{migration_file_glob}'))
 
@@ -57,6 +55,7 @@ def get_migration_statements(config: ContextConfig) -> list[str]:
 
 
 def write_migration_statements(migration_file: Path, migration_statements: list[str]):
+	""" Writes statements to an empty django migration file"""
 	migration_commands = []
 	for statement in migration_statements:
 		migration_commands.append(

@@ -1,5 +1,5 @@
 from contextlib import ExitStack
-from rules_tap.common import ContextConfig, get_hash, rm_dir
+from rules_tap.common import ContextConfig, rm_dir
 from pathlib import Path
 import fnmatch
 

@@ -195,5 +195,5 @@ RULES_TAP_CONFIG = {
 	'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py', '**/migrations/**'],
 	'SANDBOX_DB_USER': 'mr_ai',
 	'MIGRATIONS_APP_LABEL': 'org',
-	'TABLE_LOADER_CLASS_STRING': 'org.sandbox.VIEWABLES_TABLES',
+	'VIEWABLE_DB_TABLES': 'org.sandbox.VIEWABLES_TABLES',
 }

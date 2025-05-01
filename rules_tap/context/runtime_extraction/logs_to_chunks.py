@@ -1,4 +1,4 @@
-import re
+import hashlib
 from datetime import datetime
 from colorama import Fore, Style, Back
 from rules_tap.common import get_hash, ContextConfig
@@ -6,6 +6,13 @@ from rules_tap.common import get_hash, ContextConfig
 from .chunk_from_test_case import TrackAction
 from contextlib import ExitStack
 from .loggers import RuntimeLogger
+
+
+def get_hash(text: str) -> int:
+	hash_obj = hashlib.md5(text.encode('utf-8'))
+	hash_bytes = hash_obj.digest()[:8]
+	hash_id = int.from_bytes(hash_bytes, byteorder='big', signed=False)
+	return hash_id >> 1 # shift right to avoid overflow due to unsigned
 
 
 class FileTracker:
@@ -59,7 +66,7 @@ def create_chunks(config: ContextConfig, runtime_loggers: list[RuntimeLogger], c
         for logger in runtime_loggers:
             file_trackers.append(FileTracker(logger, stack))
             
-        tracker_group = TrackerGroup(file_trackers)   
+        tracker_group = TrackerGroup(file_trackers)
         for action, time in chunk_times:
             if action == TrackAction.START:
                 tracker_group.read_up_to_date(time)

@@ -1,8 +1,6 @@
 import sys
 from colorama import Back, Fore, Style
 from live_responder.config import load_config
-from live_responder.embeddings.save import save_embeddings
-from live_responder.embeddings.search import search
 from live_responder.logging import logger
 from live_responder.sql_gen.gen_sql import generate_sql
 

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import List
-from colorama import Fore, Style
+from colorama import Fore
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
