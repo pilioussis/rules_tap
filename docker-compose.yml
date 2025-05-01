@@ -44,5 +44,32 @@ services:
     ports:
       - "5432:5432"
 
+  metabase:
+    stdin_open: true
+    tty: true
+    image: metabase/metabase:v0.53.4.1
+    environment:
+      - MB_JETTY_PORT=8001
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=metabase
+      - MB_DB_PORT=5432
+      - MB_DB_USER=metabase
+      - MB_DB_PASS=hi
+      - MB_DB_HOST=db
+      # CREATE USER metabase WITH PASSWORD 'hi';
+      # CREATE DATABASE metabase;
+      # ALTER DATABASE metabase OWNER TO metabase;
+    healthcheck:
+      test: curl --fail -I http://localhost:7000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /dev/urandom:/dev/random:ro
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
 volumes:
   toy_pg_data: 

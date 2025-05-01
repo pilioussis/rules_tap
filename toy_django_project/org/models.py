@@ -97,11 +97,10 @@ class OrgQuerySet(models.QuerySet):
 		return self.filter(type__in=[OrgType.ACTIVE, OrgType.PENDING])
 
 	def viewable(self, user, **kwargs):
-		"""
-		The set of organisations that a user can view:
-			Public users - Only view active organisations.
-			Authenticated users - View active and pending organisations.
-			Admins - View all organisations.
+		"""The set of organisations that a user can view:
+			Public users: Only view active organisations.
+			Authenticated users: View active and pending organisations.
+			Admins: View all organisations.
 		"""
 		PERMISSION_MAP = {
 			User.RoleType.ADMIN: [OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE],

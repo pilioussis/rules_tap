@@ -19,9 +19,10 @@ class TrackAction(Enum):
 # Global variable to store start and stop signals
 _chunk_times = None
 
+
 @contextmanager
 def chunk_time_tracker():
-    """ Reset and expose the global _chunk_times variable """
+    """ Reset and expose the global _chunk_times variable to the calling context """
     global _chunk_times
     _chunk_times = []
     try:

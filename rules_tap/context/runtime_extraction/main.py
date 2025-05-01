@@ -1,6 +1,7 @@
 from contextlib import ExitStack
+from colorama import Fore, Style
 from rules_tap.common import ContextConfig
-from .chunk_from_test_case import chunk_time_tracker, run_tests
+from .capture_tests import chunk_time_tracker, run_tests
 from .logs_to_chunks import create_chunks
 from .loggers import get_loggers
 
@@ -19,8 +20,8 @@ def runtime_extraction(config: ContextConfig):
 		# Run code to start logging/capturing context
 		run_tests()
 
-	for t in time_chunks:
-		print(t)
+	for signal, time in time_chunks:
+		print(time, f"{Fore.CYAN}{signal}{Style.RESET_ALL}")
 
 	# Pluck useful sections in the logs to embeddable chunks
 	create_chunks(config, runtime_loggers, time_chunks)

@@ -48,7 +48,11 @@ def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: s
 	query_string = get_sql_string(table.viewable_row_fn(stub_user).only(*table.fields))
 
 	for name, value in user_field_map.items():
-		query_string = query_string.replace(f'{value}', f'(SELECT {name} FROM {USER_CTE_NAME})')
+		if isinstance(value, str):
+			# Not idea, we need to replace the quotes AND value with the equivalent CTE lookup
+			query_string = query_string.replace(f"'{value}'", f'(SELECT {name} FROM {USER_CTE_NAME})')
+		else:
+			query_string = query_string.replace(str(value), f'(SELECT {name} FROM {USER_CTE_NAME})')
 
 	query_string = cte_string + '\n\n' + query_string
 

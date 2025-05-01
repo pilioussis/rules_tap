@@ -3,7 +3,7 @@ from datetime import datetime
 from colorama import Fore, Style, Back
 from rules_tap.common import ContextConfig
 
-from .chunk_from_test_case import TrackAction
+from .capture_tests import TrackAction
 from contextlib import ExitStack
 from .loggers import RuntimeLogger
 
@@ -83,7 +83,6 @@ def create_chunks(config: ContextConfig, runtime_loggers: list[RuntimeLogger], c
             hash_id = get_hash(text)
             file_name = config.chunk_dir / 'runtime' / f'{hash_id}.txt'
             file_name.parent.mkdir(parents=True, exist_ok=True)
-
 
             with open(file_name, 'w') as f:
                 f.write(text)

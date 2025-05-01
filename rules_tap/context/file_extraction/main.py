@@ -1,4 +1,4 @@
-from contextlib import ExitStack
+from colorama import Fore, Style, Back
 from rules_tap.common import ContextConfig, rm_dir
 from pathlib import Path
 import fnmatch
@@ -22,6 +22,8 @@ def get_file_paths(config: ContextConfig, module_path: str):
 	return files
 
 def file_extraction(config: ContextConfig):
+	print()
+	print(f"{Back.BLUE}{Fore.WHITE} Collecting code files: {Style.RESET_ALL}")
 	code_dir = config.chunk_dir / "code"
 	rm_dir(code_dir)
 	for module in config.module_names:
@@ -38,3 +40,4 @@ def file_extraction(config: ContextConfig):
 			chunk_file.parent.mkdir(parents=True, exist_ok=True)
 			# write content to new chunk file
 			chunk_file.open('w', encoding='utf-8').write(content)
+			print(f"{Back.BLUE}{Fore.WHITE} - {Style.RESET_ALL} {chunk_file}")
