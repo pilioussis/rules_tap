@@ -30,7 +30,6 @@ def create_functions(config: ContextConfig) -> list[str]:
 
 	for t in config.viewable_tables:
 		function_string = create_function(
-			config,
 			table=t,
 			user_field_map=user_field_map,
 			cte_string=cte_string,
@@ -49,17 +48,17 @@ def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: s
 
 	query_string = cte_string + '\n\n' + query_string
 
-	columns = ', '.join([f'{field_name} {table.model_class._meta.db_table}.{field_name}%TYPE' for field_name in t.fields])
+	columns = ', '.join([f'{field_name} {table.model_class._meta.db_table}.{field_name}%TYPE' for field_name in table.fields])
 
 	function_string = '\n        '.join([
-	f"CREATE FUNCTION ai_sandbox.{table.model_class._meta.db_table}({USER_ID_VARIABLE} INTEGER)",
-	f"RETURNS TABLE({columns})",
-	f"LANGUAGE sql ",  # This must be sql so to avoid an optimization fence around the function
-	f"STABLE ",  # These functions will never modify the db
-	f"SECURITY DEFINER ",  # Allow this function to expose resources the user won't have access to
-	f"AS $$",
-	f"	{query_string}",
-	f"$$;",
+		f"CREATE FUNCTION ai_sandbox.{table.model_class._meta.db_table}({USER_ID_VARIABLE} INTEGER)",
+		f"RETURNS TABLE({columns})",
+		f"LANGUAGE sql ",  # This must be sql so to avoid an optimization fence around the function
+		f"STABLE ",  # These functions will never modify the db
+		f"SECURITY DEFINER ",  # Allow this function to expose resources the user won't have access to
+		f"AS $$",
+		f"	{query_string}",
+		f"$$;",
 	])
 	return function_string
 

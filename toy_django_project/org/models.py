@@ -90,6 +90,7 @@ class OrgType(models.TextChoices):
 	PENDING = 'PE', 'Pending'
 	INACTIVE = 'IN', 'Inactive'
 
+
 class OrgQuerySet(models.QuerySet):
 	def viewable_in_search(self):
 		"""The set of organisations that a user can view in the public search page"""
@@ -102,7 +103,6 @@ class OrgQuerySet(models.QuerySet):
 			Authenticated users - View active and pending organisations.
 			Admins - View all organisations.
 		"""
-
 		PERMISSION_MAP = {
 			User.RoleType.ADMIN: [OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE],
 			User.RoleType.AUTH: [OrgType.ACTIVE, OrgType.PENDING],
@@ -114,7 +114,7 @@ class OrgQuerySet(models.QuerySet):
 			for user_role, org_types in PERMISSION_MAP.items()
 		]
 
-		return self.filter(functools.reduce(operator.or_, filters)) 
+		return self.filter(functools.reduce(operator.or_, filters))
 		
 
 class Org(models.Model):

@@ -191,8 +191,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RULES_TAP_CONFIG = {
 	'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
 	'MODULE_PATHS': ['/app/toy_django_project/org'],
-	'WORKDIR': BASE_DIR / 'out',
 	'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py', '**/migrations/**'],
+	'WORKDIR': BASE_DIR / 'out',
 	'SANDBOX_DB_USER': 'mr_ai',
 	'MIGRATIONS_APP_LABEL': 'org',
 	'VIEWABLE_DB_TABLES': 'org.sandbox.VIEWABLES_TABLES',
