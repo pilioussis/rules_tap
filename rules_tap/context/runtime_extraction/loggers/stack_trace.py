@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from collections import OrderedDict
-from rules_tap.common import LOGGER_FORMAT
+from rules_tap.context.common import LOGGER_FORMAT
 
 
 @dataclass

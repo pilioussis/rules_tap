@@ -7,6 +7,7 @@ class EmbeddingConfig:
     chunk_size: int = 1000
     chunk_overlap: int = 200
     model: str = "text-embedding-3-large"
+    transpose_sql_schema_token: str ='ai_sandbox'
 
     @property
     def chunk_dir(self):

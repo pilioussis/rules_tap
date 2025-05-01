@@ -6,5 +6,4 @@ from rules_tap.context.main import get_context
 class Command(BaseCommand):
 	def handle(self, *args, **kwargs):
 		config = load_config(settings.RULES_TAP_CONFIG)
-
 		get_context(config)

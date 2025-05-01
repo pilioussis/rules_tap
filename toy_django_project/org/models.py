@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db.models import Value
 from django.db.models.lookups import Exact
-
+from django.db.models import Q
 
 class UserQuerySet(models.QuerySet):
 	def viewable(self, user, **kwargs):
@@ -102,12 +102,9 @@ class OrgQuerySet(models.QuerySet):
 		"""
 
 		return self.filter(
-			type__in=models.Case(
-				models.When(Exact(user.role, Value(User.RoleType.PUBLIC)), then=models.Value([OrgType.ACTIVE])),
-				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value([OrgType.ACTIVE, OrgType.PENDING])),
-				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value([OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE])),
-				output_field=models.CharField()
-			)
+			Q(Exact(user.role, Value(User.RoleType.ADMIN)), type__in=[OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE])
+			| Q(Exact(user.role, Value(User.RoleType.AUTH)), type__in=[OrgType.ACTIVE, OrgType.PENDING])
+			| Q(Exact(user.role, Value(User.RoleType.PUBLIC)), type__in=[OrgType.ACTIVE])
 		)
 		
 

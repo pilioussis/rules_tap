@@ -24,7 +24,7 @@ def get_schema_context(config: ContextConfig):
 				AND a.attnum > 0
 				AND NOT a.attisdropped
 				ORDER BY a.attnum;
-			""", [t.model._meta.db_table])
+			""", [t.model_class._meta.db_table])
 			columns = cursor.fetchall()
 			columns_context = []
 			for name, type, fk_ref in columns:
@@ -32,7 +32,7 @@ def get_schema_context(config: ContextConfig):
 				columns_context.append(f"  {name} {type}{fk_str}")
 
 			columns_context_string = ",\n".join(columns_context)
-			curr = f"CREATE TABLE {t.model._meta.db_table} (\n{columns_context_string}\n);"
+			curr = f"CREATE TABLE ai_sandbox.{t.model_class._meta.db_table} (\n{columns_context_string}\n);"
 			context.append(curr)
 	return context
 

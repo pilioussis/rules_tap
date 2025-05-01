@@ -3,7 +3,7 @@ from pathlib import Path
 from contextlib import contextmanager
 from django.db import connection
 from django.db.backends.utils import CursorWrapper
-from rules_tap.common import LOGGER_FORMAT
+from rules_tap.context.common import LOGGER_FORMAT
 
 
 def monkey_patch_with_logger(logfile: Path):

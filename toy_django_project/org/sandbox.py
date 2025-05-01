@@ -12,9 +12,9 @@ VIEWABLES_TABLES = [
 		fields=['id', 'name', 'type'],
 		viewable_row_fn=Org.objects.viewable,
 	),	
-	ViewableTable(
-		model_class=Worker,
-		fields=['id', 'name', 'type'],
-		viewable_row_fn=Worker.objects.viewable,
-	),
+	# ViewableTable(
+	# 	model_class=Worker,
+	# 	fields=['id', 'name', 'type'],
+	# 	viewable_row_fn=Worker.objects.viewable,
+	# ),
 ]

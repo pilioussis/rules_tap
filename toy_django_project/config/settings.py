@@ -192,7 +192,7 @@ RULES_TAP_CONFIG = {
 	'OPENAI_API_KEY': os.environ.get('OPENAI_API_KEY'),
 	'MODULE_PATHS': ['/app/toy_django_project/org'],
 	'WORKDIR': BASE_DIR / 'out',
-	'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py'],
+	'FILE_CHUNK_EXCLUDE_PATHS': ['**/admin.py', '**/migrations/**'],
 	'SANDBOX_DB_USER': 'mr_ai',
 	'MIGRATIONS_APP_LABEL': 'org',
 	'TABLE_LOADER_CLASS_STRING': 'org.sandbox.VIEWABLES_TABLES',
