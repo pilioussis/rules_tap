@@ -34,5 +34,10 @@ def get_schema_context(config: ContextConfig):
 			columns_context_string = ",\n".join(columns_context)
 			curr = f"CREATE TABLE ai_sandbox.{t.model_class._meta.db_table} (\n{columns_context_string}\n);"
 			context.append(curr)
+
+	content = "\n\n----------\n\n".join(context)
+	
+	config.schema_file.open('w', encoding='utf-8').write(content)
+
 	return context
 

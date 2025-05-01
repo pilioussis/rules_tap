@@ -7,9 +7,13 @@ requires-python = ">=3.13"
 dependencies = [
     "faiss-cpu==1.10.0",
     # "openai==1.75.0",
+    "colorama==0.4.6",
     "langchain==0.3.24",
     "langchain-community==0.3.22",
     "langchain-openai==0.3.14",
     "uvicorn==0.34.2",
     "fastapi==0.115.12",
 ]
+
+[project.scripts]
+save = "live_responder.scripts.save:main"

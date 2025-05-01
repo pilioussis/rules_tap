@@ -60,8 +60,8 @@ class SearchTests(TestCase):
             Worker.objects.create(org=org, name="ADAM", type=Worker.WorkerType.EMPLOYEE)
             Worker.objects.create(org=org, name="amber", type=Worker.WorkerType.UNDERCOVER_AGENT)
 
-        pub_user = User.objects.create(role=User.RoleType.PUBLIC)
-        admin_user = User.objects.create(role=User.RoleType.ADMIN)
+        pub_user = User.objects.create(role=User.RoleType.PUBLIC, email="pub@pub.com")
+        admin_user = User.objects.create(role=User.RoleType.ADMIN, email="admin@admin.com")
 
         results = api.get_workers_search_results(pub_user, {'name': "am"})
         self.assertEqual(results.count(), 1)

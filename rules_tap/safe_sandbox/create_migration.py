@@ -28,6 +28,7 @@ def create_empty_migration(config: ContextConfig):
 	
 	return migration_file
 
+
 def get_migration_file(config: ContextConfig, migration_name: str):
 	""" Gets the most recent migration file that matches the migration name.
 	"""
@@ -53,6 +54,7 @@ def get_migration_statements(config: ContextConfig) -> list[str]:
 	]
 
 	return house_keeping_statements + function_strings + grant_statements
+
 
 def write_migration_statements(migration_file: Path, migration_statements: list[str]):
 	migration_commands = []

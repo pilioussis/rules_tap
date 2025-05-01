@@ -74,7 +74,11 @@ class ContextConfig:
 	@property
 	def sql_log_file(self):
 		return self.runtime_dir / 'sql.log'
-	
+
+	@property
+	def schema_file(self):
+		return self.chunk_dir / 'schema.sql'
+
 	@property
 	def stack_trace_log_file(self):
 		return self.runtime_dir / 'stack_trace.log'

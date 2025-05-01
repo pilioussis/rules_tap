@@ -12,6 +12,10 @@ class EmbeddingConfig:
     @property
     def chunk_dir(self):
         return self.work_dir / 'chunks'
+    
+    @property
+    def schema_file(self):
+        return self.chunk_dir / 'schema.sql'
 
     @property
     def code_dir(self):

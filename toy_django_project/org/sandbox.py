@@ -4,17 +4,17 @@ from .models import User, Org, Worker
 VIEWABLES_TABLES = [
 	ViewableTable(
 		model_class=User,
-		fields=['id', 'first_name', 'role'],
+		fields=['id', 'email', 'first_name', 'created', 'role'],
 		viewable_row_fn=User.objects.viewable,
 	),
 	ViewableTable(
 		model_class=Org,
-		fields=['id', 'name', 'type'],
+		fields=['id', 'name', 'created', 'type'],
 		viewable_row_fn=Org.objects.viewable,
-	),	
-	# ViewableTable(
-	# 	model_class=Worker,
-	# 	fields=['id', 'name', 'type'],
-	# 	viewable_row_fn=Worker.objects.viewable,
-	# ),
+	),
+	ViewableTable(
+		model_class=Worker,
+		fields=['id', 'org_id', 'created', 'name', 'type', 'description'],
+		viewable_row_fn=Worker.objects.viewable,
+	),
 ]

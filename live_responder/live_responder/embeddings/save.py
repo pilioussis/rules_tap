@@ -15,7 +15,7 @@ def get_document_chunks(config: EmbeddingConfig) -> List:
 	# Load Python files from data_path
 	loader = DirectoryLoader(
 		config.code_dir,
-		exclude=config.exclude_files,
+		# exclude=config.exclude_files, Files have already been excluded in context gathering stage
 		glob="**/*.py",
 		loader_cls=TextLoader,
 		loader_kwargs={"encoding": "utf-8"}

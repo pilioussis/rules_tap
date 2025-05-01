@@ -7,7 +7,6 @@ from rules_tap.common import ContextConfig
 
 User = get_user_model()
 
-
 @dataclass
 class Cte:
 	name: str
@@ -52,7 +51,7 @@ def create_functions(config: ContextConfig):
 
 		query_string = cte_string + '\n\n' + query_string
 
-		columns = ', '.join([f'public.{field_name} {t.model_class._meta.db_table}.{field_name}%TYPE' for field_name in t.fields])
+		columns = ', '.join([f'{field_name} {t.model_class._meta.db_table}.{field_name}%TYPE' for field_name in t.fields])
 
 		function_string = '\n        '.join([
 		f"CREATE FUNCTION ai_sandbox.{t.model_class._meta.db_table}({USER_ID_VARIABLE} INTEGER)",

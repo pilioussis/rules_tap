@@ -1,5 +1,5 @@
 import re
-from .config import EmbeddingConfig
+from live_responder.config import EmbeddingConfig
 
 
 def transpose_to_sandbox(config: EmbeddingConfig, statement_string: str):

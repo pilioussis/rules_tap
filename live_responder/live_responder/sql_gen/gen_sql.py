@@ -9,20 +9,21 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 from live_responder.embeddings.search import search as fetch_context
 from live_responder.sql_gen.transpose import transpose_to_sandbox
-from live_responder.config import EmbeddingConfig, SQLGenConfig
+from live_responder.config import EmbeddingConfig
 from live_responder.logging import logger
+
 
 @dataclasses.dataclass
 class SQLGenConfig:
 	model: str = "gpt-4o-mini"
 	temperature: float = 0.0
 
+
 sql_gen_config = SQLGenConfig()
 
 class SQLResponse(BaseModel):
 	sql: str = Field(description="A postgres 16 compliant SQL query")
 	explanation: str = Field(description="Explanation of the generated SQL query")
-
 
 
 def generate_sql(
@@ -44,6 +45,8 @@ def generate_sql(
 
 	parser = JsonOutputParser(pydantic_object=SQLResponse)
 
+	schema = embedding_config.schema_file.read_text()
+
 	prompt_template = """
 	Based on the following relevant database schema documentation and the user query, generate a PostgreSQL 16 SQL query and a brief explanation for how it answers the query.
 	Return the result *only* as a JSON object with keys "sql" and "explanation". Do not include any other text or markdown formatting.
@@ -52,6 +55,10 @@ def generate_sql(
 	----------------------
 	{context}
 	----------------------
+
+	Database Schema:
+	----------------------
+	{schema}
 
 	Format Instructions:
 	{format_instructions}
@@ -69,7 +76,7 @@ def generate_sql(
 	chain = prompt | llm | parser
 
 	logger.info("Generating SQL with LLM...")
-	response: Dict[str, Any] = chain.invoke({"query": query, "context": context_str})
+	response: Dict[str, Any] = chain.invoke({"query": query, "context": context_str, "schema": schema})
 	generated_sql = response.get("sql")
 	explanation = response.get("explanation")
 

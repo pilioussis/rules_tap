@@ -1,3 +1,5 @@
+import functools
+import operator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db.models import Value
@@ -101,11 +103,18 @@ class OrgQuerySet(models.QuerySet):
 			Admins - View all organisations.
 		"""
 
-		return self.filter(
-			Q(Exact(user.role, Value(User.RoleType.ADMIN)), type__in=[OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE])
-			| Q(Exact(user.role, Value(User.RoleType.AUTH)), type__in=[OrgType.ACTIVE, OrgType.PENDING])
-			| Q(Exact(user.role, Value(User.RoleType.PUBLIC)), type__in=[OrgType.ACTIVE])
-		)
+		PERMISSION_MAP = {
+			User.RoleType.ADMIN: [OrgType.ACTIVE, OrgType.PENDING, OrgType.INACTIVE],
+			User.RoleType.AUTH: [OrgType.ACTIVE, OrgType.PENDING],
+			User.RoleType.PUBLIC: [OrgType.ACTIVE],
+		}
+
+		filters = [
+			Q(Exact(user.role, Value(user_role)), type__in=org_types)
+			for user_role, org_types in PERMISSION_MAP.items()
+		]
+
+		return self.filter(functools.reduce(operator.or_, filters)) 
 		
 
 class Org(models.Model):
@@ -126,24 +135,31 @@ class WorkerType(models.TextChoices):
 		CONTRACTOR = 'CO', 'Contractor'
 		UNDERCOVER_AGENT = 'UA', 'Undercover Agent'
 
+
 class WorkerQuerySet(models.QuerySet):
 	def viewable(self, user, **kwargs):
 		""" Returns a queryset of workers that are viewable by the user. Only Admins can view undercover agents."""
-		base_types = [
+		BASE_TYPES = [
 			WorkerType.EMPLOYEE,
 			WorkerType.CONTRACTOR,
 		]
-		admin_types = [
-			*base_types,
-			WorkerType.UNDERCOVER_AGENT
+
+		PERMISSION_MAP = {
+			User.RoleType.ADMIN: [*BASE_TYPES, WorkerType.UNDERCOVER_AGENT],
+			User.RoleType.AUTH: BASE_TYPES,
+			User.RoleType.PUBLIC: BASE_TYPES,
+		}
+
+		filters = [
+			Q(Exact(user.role, Value(user_role)), type__in=org_types)
+			for user_role, org_types in PERMISSION_MAP.items()
 		]
 
 		return self.filter(
-			 org__in=Org.objects.viewable(user),
-			 type__in=models.Case(
-				models.When(Exact(user.role, Value(User.RoleType.ADMIN)), then=models.Value(admin_types)),
-				default=models.Value(base_types),
-			)
+			# Worker must be viewable
+			functools.reduce(operator.or_, filters),
+			# AND org must be viewable to user
+			org__in=Org.objects.viewable(user),
 		)
 	
 	def viewable_in_user_search(self, user):

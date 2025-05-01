@@ -28,6 +28,8 @@ services:
       - ./toy_django_project/out:/app/data
     env_file:
       - ~/.pharos/aws_dev_bucket_user.env
+    environment:
+      - PYTHONPATH=/app
     ports:
       - "8003:8003"
 
