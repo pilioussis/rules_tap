@@ -1,0 +1,15 @@
+{
+	"editor.detectIndentation": true,
+	"editor.renderWhitespace": "all", 
+	"python.languageServer": "Pylance",
+	"python.analysis.autoImportCompletions": true,
+	"python.analysis.typeCheckingMode": "basic",
+	"editor.insertSpaces": false,
+	"editor.tabSize": 3,
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#631e1e"
+	},
+	"[sql]": {
+		"editor.defaultFormatter": "bradymholt.pgformatter"
+	}
+}

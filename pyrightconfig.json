@@ -1,0 +1,37 @@
+{
+	"include": [
+		"live_responder",
+		"rules_tap",
+		"toy_django_project",
+	],
+	"exclude": [
+		"**/playground",
+		"**/__pycache__",
+		"toy_django_project/out"
+	],
+	"pythonVersion": "3.13",
+	"pythonPlatform": "Linux",
+	"typeCheckingMode": "basic",
+	"executionEnvironments": [
+		{
+			"root": "live_responder",
+			"extraPaths": [
+				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages",
+			]
+		},
+		{
+			"root": "rules_tap",
+			"extraPaths": [
+				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages",
+			]
+		},
+		{
+			"root": "toy_django_project",
+			"extraPaths": [
+				"/Users/dean/prog/rules_tap",
+				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages"
+			]
+		},
+	],
+	"reportAttributeAccessIssue": false, // https://github.com/typeddjango/django-stubs/issues/579#issuecomment-2299995826
+}

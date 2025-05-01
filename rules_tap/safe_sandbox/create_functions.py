@@ -6,9 +6,11 @@ from rules_tap.common import ContextConfig, ViewableTable
 from django.contrib.auth.models import AbstractUser
 User = get_user_model()
 
+
 # The function param name used in every function
-USER_ID_VARIABLE = 'global_user_id'
+AUTHENTICATED_USER_ID_VARIABLE = 'authenticated_user_id'
 USER_CTE_NAME = 'user_cte'
+
 
 @dataclass
 class Cte:
@@ -51,7 +53,7 @@ def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: s
 	columns = ', '.join([f'{field_name} {table.model_class._meta.db_table}.{field_name}%TYPE' for field_name in table.fields])
 
 	function_string = '\n        '.join([
-		f"CREATE FUNCTION ai_sandbox.{table.model_class._meta.db_table}({USER_ID_VARIABLE} INTEGER)",
+		f"CREATE FUNCTION ai_sandbox.{table.model_class._meta.db_table}({AUTHENTICATED_USER_ID_VARIABLE} INTEGER)",
 		f"RETURNS TABLE({columns})",
 		f"LANGUAGE sql ",  # This must be sql so to avoid an optimization fence around the function
 		f"STABLE ",  # These functions will never modify the db
@@ -66,8 +68,8 @@ def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: s
 def create_user_cte(stub_user: AbstractUser):
 	""" Get the CTE which will expose the user to every function body """
 	user_cte_string = get_sql_string(User.objects.filter(id=stub_user.id).only('id', 'role'))
-	# Replace the stubbed id, with the param passed into the function
-	user_cte_string = user_cte_string.replace(str(stub_user.id), USER_ID_VARIABLE)
+	# Replace the stub id, with the param passed to the function
+	user_cte_string = user_cte_string.replace(str(stub_user.id), AUTHENTICATED_USER_ID_VARIABLE)
 	
 	user_cte = Cte(query=user_cte_string, name=USER_CTE_NAME)
 	return create_cte_string([user_cte])

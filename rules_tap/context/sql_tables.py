@@ -41,4 +41,4 @@ def get_create_statement(table: ViewableTable):
 
 		columns_context_string = ",\n".join(columns_context)
 
-		return f"CREATE TABLE ai_sandbox.{t.model_class._meta.db_table} (\n{columns_context_string}\n);"
+		return f"CREATE TABLE ai_sandbox.{table.model_class._meta.db_table} (\n{columns_context_string}\n);"

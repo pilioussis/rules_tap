@@ -1,7 +1,7 @@
 import hashlib
 from datetime import datetime
 from colorama import Fore, Style, Back
-from rules_tap.common import get_hash, ContextConfig
+from rules_tap.common import ContextConfig
 
 from .chunk_from_test_case import TrackAction
 from contextlib import ExitStack

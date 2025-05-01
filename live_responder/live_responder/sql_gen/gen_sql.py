@@ -13,6 +13,22 @@ from live_responder.sql_gen.transpose import transpose_to_sandbox
 from live_responder.config import EmbeddingConfig
 from live_responder.logging import logger
 
+PROMPT_TEMPLATE = """
+Based on the following database schema documentation, relevant context, and
+user query, generate a PostgreSQL 16 SQL query plus a brief explanation.
+Return *only* a JSON object that adheres to the schema below—no other text.
+
+Context:
+{context}
+
+Schema:
+{schema}
+
+{format_instructions}
+
+User Query: {query}
+"""
+
 
 @dataclasses.dataclass
 class SQLGenConfig:
@@ -32,10 +48,10 @@ def generate_sql(
 	embedding_config: EmbeddingConfig,
 	search_k: int = 4,
 ) -> Dict[str, str]:
-	"""Generate a parameter‑sanitised SQL statement for the given user *query*."""
+	"""Generate a paramete ‑sanitised SQL statement for the given user *query*."""
 
 	logger.info("Fetching %d context documents for: %s", search_k, query)
-	context_docs: list[str] = fetch_context(query, search_k, embedding_config)  # noqa: F821
+	context_docs = fetch_context(query, search_k, embedding_config)  # noqa: F821
 	context_str = "\n---\n".join(context_docs)
 
 	if not context_docs:
@@ -49,26 +65,10 @@ def generate_sql(
 	parser = PydanticOutputParser(pydantic_object=SQLResponse)
 
 	schema_path = Path(embedding_config.schema_file)
-	schema: str = schema_path.read_text()
-
-	prompt_template = """
-Based on the following database schema documentation, relevant context, and
-user query, generate a PostgreSQL 16 SQL query plus a brief explanation.
-Return *only* a JSON object that adheres to the schema below—no other text.
-
-Context:
-{context}
-
-Schema:
-{schema}
-
-{format_instructions}
-
-User Query: {query}
-"""
+	schema = schema_path.read_text()
 
 	prompt = ChatPromptTemplate.from_template(
-		prompt_template,
+		PROMPT_TEMPLATE,
 		partial_variables={"format_instructions": parser.get_format_instructions()},
 	)
 
@@ -84,7 +84,7 @@ User Query: {query}
 	)
 
 	# transpose the identifiers if the sandbox uses a different schema name
-	logger.info("original SQL: \n%s", response.sql)
+	logger.info("Response received: \n%s", response.sql)
 	logger.info("Transposing generated SQL to sandbox schema…")
 	transposed_sql = transpose_to_sandbox(embedding_config, response.sql)  # noqa: F821
 
