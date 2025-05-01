@@ -18,7 +18,6 @@ def search(query: str, k: int, config: EmbeddingConfig) -> List[str]:
 		show_progress_bar=True,
 		model=config.model,
 	)
-	
 
 	db = FAISS.load_local(
 		folder_path=config.work_dir,

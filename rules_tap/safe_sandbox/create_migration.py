@@ -29,6 +29,8 @@ def create_empty_migration(config: ContextConfig):
 	return migration_file
 
 def get_migration_file(config: ContextConfig, migration_name: str):
+	""" Gets the most recent migration file that matches the migration name.
+	"""
 	migration_file_glob = f"*{migration_name}.py"
 	migration_file = next(Path(config.migrations_app.path).glob(f'migrations/{migration_file_glob}'))
 
@@ -67,11 +69,3 @@ def write_migration_statements(migration_file: Path, migration_statements: list[
 	
 	with open(migration_file, 'w') as f:
 		f.write(content)
-
-
-
-
-
-
-
-	
