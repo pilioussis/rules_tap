@@ -4,8 +4,8 @@ from typing import Dict, Any
 from pathlib import Path
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
 
 
 from live_responder.embeddings.search import search as fetch_context
@@ -44,11 +44,9 @@ def generate_sql(
 	llm = ChatOpenAI(
 		model=sql_gen_config.model,
 		temperature=sql_gen_config.temperature,
-		# enable OpenAI JSON mode so the model *guarantees* valid JSON
-		response_format={"type": "json_object"},
 	)
 
-	parser = JsonOutputParser(pydantic_object=SQLResponse)
+	parser = PydanticOutputParser(pydantic_object=SQLResponse)
 
 	schema_path = Path(embedding_config.schema_file)
 	schema: str = schema_path.read_text()
@@ -77,8 +75,7 @@ User Query: {query}
 	chain = prompt | llm | parser
 
 	logger.info("Invoking LLM…")
-	# TODO: Fix this to be an SQLResponse
-	response: dict[str, Any] = chain.invoke(
+	response: SQLResponse = chain.invoke(
 		{
 			"context": context_str,
 			"schema": schema,
@@ -86,10 +83,9 @@ User Query: {query}
 		}
 	)
 
-	# logger.debug("LLM returned: %s", response.json(indent=2))
-
 	# transpose the identifiers if the sandbox uses a different schema name
+	logger.info("original SQL: \n%s", response.sql)
 	logger.info("Transposing generated SQL to sandbox schema…")
-	transposed_sql = transpose_to_sandbox(embedding_config, response['sql'])  # noqa: F821
+	transposed_sql = transpose_to_sandbox(embedding_config, response.sql)  # noqa: F821
 
-	return {"sql": transposed_sql, "explanation": response['explanation']}
+	return {"sql": transposed_sql, "explanation": response.explanation}

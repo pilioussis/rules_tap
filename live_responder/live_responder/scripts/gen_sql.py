@@ -9,8 +9,5 @@ if __name__ == "__main__":
 	arg = sys.argv[1]
 	sql = generate_sql(arg, config, search_k=3)
 
-	logger.info(f"{Back.CYAN}{Fore.BLACK} Explanation {Style.RESET_ALL}")
-	logger.info(sql['explanation'])
-
-	logger.info(f"{Back.CYAN}{Fore.BLACK} SQL {Style.RESET_ALL}")
-	logger.info(sql['sql'])
+	logger.info(f"{Back.GREEN}{Fore.BLACK} Explanation {Style.RESET_ALL}\n{sql['explanation']}\n")
+	logger.info(f"{Back.GREEN}{Fore.BLACK} SQL {Style.RESET_ALL}\n{sql['sql']}\n")
