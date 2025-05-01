@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
+import contextlib
 from pathlib import Path
 from typing import Callable
-import contextlib
 from rules_tap.common import ContextConfig
 from .sql import log_sql_to_file, sql_line_processor
 from .stack_trace import log_stack_trace_info_to_file, stack_trace_line_processor
 
 @dataclass
 class RuntimeLogger:
-	context_manager: contextlib.contextmanager
+	context_manager: contextlib.ContextManager
 	logfile: Path
 	line_processor: Callable[[str], str]
 	logger_args: dict = field(default_factory=dict)

@@ -35,8 +35,8 @@ def _generate_sql(request: GenerateSqlRequest):
 	"""Generate a SQL query for a given query."""
 	logger.info(f"Got request: {Fore.GREEN}{request}")
 	try:
-		sql: str = generate_sql(request.query, config, search_k=request.k)
-		return {"query": sql}
+		sql: dict = generate_sql(request.query, config, search_k=request.k)
+		return {"query": sql['sql'], "explanation": sql['explanation']}
 	except ValueError as e:
 		raise HTTPException(status_code=500, detail=str(e))
 

@@ -57,10 +57,14 @@ class ContextConfig:
 		return viewable_tables
 	
 	@property
-	def migrations_app(self):
+	def migrations_app(self) -> AppConfig:
 		if self._migrations_app:
 			return self._migrations_app
 		self._migrations_app = apps.get_app_config(self.migrations_app_label)
+
+		if not self._migrations_app:
+			raise Exception(f'Django app {self.migrations_app_label} not found')
+
 		return self._migrations_app
 
 	@property

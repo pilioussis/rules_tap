@@ -14,7 +14,7 @@ def get_document_chunks(config: EmbeddingConfig) -> List:
 	"""Load and chunk documents from the code directory."""
 	# Load Python files from data_path
 	loader = DirectoryLoader(
-		config.code_dir,
+		str(config.code_dir),
 		# exclude=config.exclude_files, Files have already been excluded in context gathering stage
 		glob="**/*.py",
 		loader_cls=TextLoader,
@@ -53,9 +53,9 @@ def save_embeddings(config: EmbeddingConfig) -> None:
 		logger.info("Vector database exists, merging new chunks with existing ones")
 		# Load existing vector store
 		existing_store = FAISS.load_local(
-			folder_path=config.work_dir,
+			folder_path=str(config.work_dir),
 			embeddings=embeddings,
-			index_name=config.vector_index_file,
+			index_name=str(config.vector_index_file),
 			allow_dangerous_deserialization=True
 		)
 		
@@ -80,5 +80,5 @@ def save_embeddings(config: EmbeddingConfig) -> None:
 	os.makedirs(config.work_dir, exist_ok=True)
 
 	# Save index locally
-	vector_store.save_local(folder_path=config.work_dir, index_name=config.vector_index_file)
+	vector_store.save_local(folder_path=str(config.work_dir), index_name=str(config.vector_index_file))
 	logger.info(f"Saved to {Fore.GREEN}{config.work_dir/config.vector_index_file}")

@@ -71,7 +71,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Parse database connection URL
-database_url = os.environ.get('DATABASE_URL')
+database_url = os.environ.get('DATABASE_URL', '')
 parts = database_url.split('://', 1)[1].split('@')
 user_pass, host_port_name = parts[0], parts[1]
 user, password = user_pass.split(':')

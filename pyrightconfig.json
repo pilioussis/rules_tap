@@ -6,8 +6,8 @@
 	],
 	"exclude": [
 		"**/playground",
-		"**/__pycache__",
-		"toy_django_project/out"
+		"toy_django_project/out",
+		"toy_django_project/org",
 	],
 	"pythonVersion": "3.13",
 	"pythonPlatform": "Linux",
@@ -17,18 +17,20 @@
 			"root": "live_responder",
 			"extraPaths": [
 				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages",
+				"/Users/dean/prog/pharos/rules_tap/live_responder",
 			]
 		},
 		{
 			"root": "rules_tap",
 			"extraPaths": [
 				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages",
+				"/Users/dean/prog/pharos/rules_tap",
 			]
 		},
 		{
 			"root": "toy_django_project",
 			"extraPaths": [
-				"/Users/dean/prog/rules_tap",
+				"/Users/dean/prog/pharos/rules_tap",
 				"/Users/dean/.pyenv/versions/rules_tap/lib/python3.13/site-packages"
 			]
 		},

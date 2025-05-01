@@ -17,9 +17,11 @@ class Cte:
 	name: str
 	query: str
 
+
 def create_functions(config: ContextConfig) -> list[str]:
 	"""Generate a list of create function statements that will expose config.viewable_tables"""
-	# Move this to config and generate random numbers
+	
+	# TODO: Move this to config
 	user_field_map = {
 		'id': 1122334455,
 		'role': '998877',
@@ -42,7 +44,7 @@ def create_functions(config: ContextConfig) -> list[str]:
 	return function_strings
 
 
-def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: str, stub_user: dict):
+def create_function(*, table: ViewableTable, user_field_map: dict, cte_string: str, stub_user: AbstractUser):
 	query_string = get_sql_string(table.viewable_row_fn(stub_user).only(*table.fields))
 
 	for name, value in user_field_map.items():
