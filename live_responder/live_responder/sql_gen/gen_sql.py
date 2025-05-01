@@ -1,6 +1,7 @@
 import json
 import dataclasses
 from typing import Dict, Any
+from pathlib import Path
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
@@ -31,66 +32,64 @@ def generate_sql(
 	embedding_config: EmbeddingConfig,
 	search_k: int = 4,
 ) -> Dict[str, str]:
-	logger.info(f"Fetching {search_k} context documents for query: '{query}'")
-	context_docs = fetch_context(query, search_k, embedding_config)
+	"""Generate a parameter‑sanitised SQL statement for the given user *query*."""
+
+	logger.info("Fetching %d context documents for: %s", search_k, query)
+	context_docs: list[str] = fetch_context(query, search_k, embedding_config)  # noqa: F821
 	context_str = "\n---\n".join(context_docs)
-	logger.info(f"Fetched {len(context_docs)} context documents.")
+
 	if not context_docs:
-		logger.warning("No context documents found for the query.")
+		logger.warning("No context docs found for the query.")
 
 	llm = ChatOpenAI(
 		model=sql_gen_config.model,
-		temperature=sql_gen_config.temperature
+		temperature=sql_gen_config.temperature,
+		# enable OpenAI JSON mode so the model *guarantees* valid JSON
+		response_format={"type": "json_object"},
 	)
 
 	parser = JsonOutputParser(pydantic_object=SQLResponse)
 
-	schema = embedding_config.schema_file.read_text()
+	schema_path = Path(embedding_config.schema_file)
+	schema: str = schema_path.read_text()
 
 	prompt_template = """
-	Based on the following relevant database schema documentation and the user query, generate a PostgreSQL 16 SQL query and a brief explanation for how it answers the query.
-	Return the result *only* as a JSON object with keys "sql" and "explanation". Do not include any other text or markdown formatting.
+Based on the following database schema documentation, relevant context, and
+user query, generate a PostgreSQL 16 SQL query plus a brief explanation.
+Return *only* a JSON object that adheres to the schema below—no other text.
 
-	Context Documentation:
-	----------------------
-	{context}
-	----------------------
+Context:
+{context}
 
-	Database Schema:
-	----------------------
-	{schema}
+Schema:
+{schema}
 
-	Format Instructions:
-	{format_instructions}
+{format_instructions}
 
-	User Query: {query}
-
-	JSON Response:
-	"""
+User Query: {query}
+"""
 
 	prompt = ChatPromptTemplate.from_template(
-		template=prompt_template,
-		partial_variables={"format_instructions": parser.get_format_instructions()}
+		prompt_template,
+		partial_variables={"format_instructions": parser.get_format_instructions()},
 	)
 
 	chain = prompt | llm | parser
 
-	logger.info("Generating SQL with LLM...")
-	response: Dict[str, Any] = chain.invoke({"query": query, "context": context_str, "schema": schema})
-	generated_sql = response.get("sql")
-	explanation = response.get("explanation")
+	logger.info("Invoking LLM…")
+	# TODO: Fix this to be an SQLResponse
+	response: dict[str, Any] = chain.invoke(
+		{
+			"context": context_str,
+			"schema": schema,
+			"query": query,
+		}
+	)
 
-	if not generated_sql or not isinstance(generated_sql, str):
-			raise ValueError("LLM response missing or invalid 'sql' key.")
-	if not explanation or not isinstance(explanation, str):
-			raise ValueError("LLM response missing or invalid 'explanation' key.")
+	# logger.debug("LLM returned: %s", response.json(indent=2))
 
-	logger.info("Successfully generated SQL and explanation.")
-	logger.debug(f"Generated SQL:\n{generated_sql}")
-	logger.debug(f"Explanation:\n{explanation}")
+	# transpose the identifiers if the sandbox uses a different schema name
+	logger.info("Transposing generated SQL to sandbox schema…")
+	transposed_sql = transpose_to_sandbox(embedding_config, response['sql'])  # noqa: F821
 
-	logger.info("Transposing generated SQL...")
-	transposed_sql = transpose_to_sandbox(embedding_config, generated_sql)
-	logger.debug(f"Transposed SQL:\n{transposed_sql}")
-
-	return {"sql": transposed_sql, "explanation": explanation}
+	return {"sql": transposed_sql, "explanation": response['explanation']}
