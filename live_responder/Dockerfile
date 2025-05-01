@@ -1,5 +1,5 @@
 FROM python:3.13-slim
-RUN echo "export PS1=\"\[\e[36;44m\] \u \[\e[0m\]\[\e[34;46m\] @\h \[\e[0m\]\[\e[36;44m\] \w \[\e[0m\]\[\e[34;46m\]⮕ \[\e[0m\] \"" > /root/.bashrc
+RUN echo "export PS1=\"\[\e[36;44m\] \u \[\e[0m\]\[\e[34;46m\] @\h \[\e[0m\]\[\e[36;44m\] \w \[\e[0m\]\[\e[34;46m\]>\[\e[0m\] \"" > /root/.bashrc
 
 WORKDIR /app
 
