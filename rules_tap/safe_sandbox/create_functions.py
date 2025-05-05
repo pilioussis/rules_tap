@@ -27,9 +27,8 @@ def create_functions(config: ContextConfig) -> list[str]:
 		'role': '998877',
 	}
 	stub_user = User(**user_field_map)
-	
 	cte_string = create_user_cte(stub_user)
-	
+
 	function_strings = []
 
 	for t in config.viewable_tables:
